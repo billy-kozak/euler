@@ -11,7 +11,7 @@
 CC := gcc
 LD := gcc
 
-CFLAGS += -Wall -std=c99
+CFLAGS += -Wall -std=gnu99
 LDFLAGS += -Wall
 
 PROJECT := euler
@@ -31,6 +31,8 @@ C_PATHS   += $(foreach dir, $(SRC_DIRS),$(wildcard $(dir)/*.c))
 C_FILES   += $(foreach f, $(C_PATHS),$(notdir $(f)))
 OBJ_FILES += $(foreach f,$(C_FILES),$(BUILD_DIR)/$(patsubst %.c,%.o,$(f)))
 DEP_FILES += $(foreach f,$(C_FILES),$(BUILD_DIR)/$(patsubst %.c,%.d,$(f)))
+
+LIBS = -lrt
 
 BINARY := $(EXE_DIR)/$(PROJECT)
 
@@ -64,7 +66,7 @@ $(BUILD_DIR)/%.o: %.c | $(BUILD_DIR)/.dir_dummy
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BINARY): $(OBJ_FILES) | $(EXE_DIR)/.dir_dummy
-	$(LD) $(LDFLAGS) $^ -o $@
+	$(LD) $(LDFLAGS) $^ $(LIBS) -o $@
 
 clean: C_DIRS = $(SRC_DIRS) $(INC_DIRS)                     
 clean: CORE_FILES += $(foreach dir,$(C_DIRS),$(wildcard $(dir)/*~))

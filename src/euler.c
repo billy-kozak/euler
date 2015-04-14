@@ -9,6 +9,7 @@
 ******************************************************************************/
 #include "euler.h"
 
+#include <time.h>
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
@@ -137,7 +138,10 @@ static struct euler_progOpts get_progOpts(int argc, char** argv){
 				break;
 		}
 	}
-	optInd += 1;
+	
+	if(optInd){
+		optInd += 1;
+	}
 	
 	if(optInd < (argc-2)){
 		fprintf(stderr,"Error: too many arguments\n");
@@ -175,8 +179,25 @@ static struct euler_progOpts get_progOpts(int argc, char** argv){
 int main(int argc, char** argv){
 	
 	const struct euler_progOpts opts = get_progOpts(argc,argv);
+	struct timespec t1;
+	struct timespec t2;
 	
-	printf("%d\n",opts.quiet);
+	
+	if(clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t1) ){
+		perror("Error measuring time\n");	
+	}
+	
+	if(clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t2) ){
+		perror("Error measuring time\n");	
+	}
+	
+	if(!opts.quiet){
+		double elapsed = 
+			(double)(t2.tv_sec-t1.tv_sec) +
+			((double)(t2.tv_nsec-t1.tv_nsec))/1000000.0;
+			
+		printf("Completed in %lf seconds\n",elapsed);
+	}
 	
 	return 0;
 }
