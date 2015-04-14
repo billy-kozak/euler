@@ -115,10 +115,10 @@ static struct euler_progOpts get_progOpts(int argc, char** argv){
 		{"quiet",no_argument,NULL,'q'},
 		{NULL,0,NULL,0}
 	};
-	int optInd = 0;
 	int c;
+	int longInd = 0;
 	
-	while( (c = getopt_long(argc,argv,optstring,oTab,&optInd) ) != -1){
+	while( (c = getopt_long(argc,argv,optstring,oTab,&longInd) ) != -1){
 		switch(c){
 			case 'h':
 				printHelp(argv[0]);
@@ -139,16 +139,12 @@ static struct euler_progOpts get_progOpts(int argc, char** argv){
 		}
 	}
 	
-	if(optInd){
-		optInd += 1;
-	}
-	
-	if(optInd < (argc-2)){
+	if(optind < (argc-1)){
 		fprintf(stderr,"Error: too many arguments\n");
 		fprintUsage(stderr,argv[0]);
 		exit(1);
 	}
-	else if(optInd == (argc-1)){
+	else if(optind == argc){
 		fprintf(
 				stderr,
 				"Error: too few arguments, require problem"
@@ -159,11 +155,11 @@ static struct euler_progOpts get_progOpts(int argc, char** argv){
 	}
 	
 	long temp;
-	if(strTo_positiveInt(argv[optInd+1],&temp)){
+	if(strTo_positiveInt(argv[optind],&temp)){
 		fprintf(
 			stderr,
 			"Error: expected positive integer, got \"%s\"\n",
-			argv[optInd]
+			argv[optind]
 		);
 		fprintUsage(stderr,argv[0]);
 		exit(1);
