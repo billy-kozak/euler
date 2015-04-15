@@ -73,5 +73,7 @@ clean: CORE_FILES += $(foreach dir,$(C_DIRS),$(wildcard $(dir)/*~))
 clean: CORE_FILES += $(foreach dir,$(C_DIRS),$(wildcard $(dir)/*#))
 clean:
 	rm -f $(BUILD_DIR)/* $(EXE_DIR)/* $(CORE_FILES)
-	
+
+ifneq ($(MAKECMDGOALS),clean)
 -include $(DEP_FILES)
+endif
