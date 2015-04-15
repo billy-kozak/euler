@@ -92,7 +92,7 @@ static int strTo_positiveInt(const char* s,long* i){
 	errno = 0;
 	temp = strtoul(s,&endptr,0);
 	
-	if(errno || (temp<0) ){
+	if(errno || (temp<=0) ){
 		return 1;
 	}
 	
@@ -139,7 +139,6 @@ static struct euler_progOpts get_progOpts(int argc, char** argv){
 				break;
 		}
 	}
-	
 	if(optind < (argc-1)){
 		fprintf(stderr,"Error: too many arguments\n");
 		fprintUsage(stderr,argv[0]);
@@ -154,7 +153,6 @@ static struct euler_progOpts get_progOpts(int argc, char** argv){
 		fprintUsage(stderr,argv[0]);
 		exit(1);
 	}
-	
 	long temp;
 	if(strTo_positiveInt(argv[optind],&temp)){
 		fprintf(
@@ -165,7 +163,6 @@ static struct euler_progOpts get_progOpts(int argc, char** argv){
 		fprintUsage(stderr,argv[0]);
 		exit(1);
 	}
-	
 	opts.probNum = temp;
 	
 	return opts; 
