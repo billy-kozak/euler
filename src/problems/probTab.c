@@ -6,11 +6,13 @@
 *                                  INCLUDES                                   *
 ******************************************************************************/
 #include "eulerProblems.h"
+#include "eulerSolvers.h"
 
 #include <stdlib.h>
 /******************************************************************************
 *                                   GLOBALS                                   *
 ******************************************************************************/
 struct eulerSol (*problemTab[NUM_EULER_PROBLEMS])(void) = {
+	euler_prob1,
 	NULL
 };

@@ -28,6 +28,7 @@ void printEulerSol(struct eulerSol sol){
 			break;
 		case U64:
 			printf("%lu\n",sol.val.u64);
+			break;
 		case DOUBLE:
 			printf("%lf\n",sol.val.d);
 			break;
