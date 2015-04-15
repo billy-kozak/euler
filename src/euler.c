@@ -8,6 +8,7 @@
 *                                  INCLUDES                                   *
 ******************************************************************************/
 #include "euler.h"
+#include "eulerProblems.h"
 
 #include <time.h>
 #include <string.h>
@@ -177,15 +178,32 @@ int main(int argc, char** argv){
 	const struct euler_progOpts opts = get_progOpts(argc,argv);
 	struct timespec t1;
 	struct timespec t2;
+	struct eulerSol (*func)(void);
+	struct eulerSol sol;
 	
+	if(opts.probNum >= NUM_EULER_PROBLEMS){
+		fprintf(stderr,"Error: problems only go to 501\n");
+		exit(-1);
+	}
+	
+	func = problemTab[opts.probNum-1];
+	if(!func){
+		fprintf(
+				stderr,"problem %d is not yet implemented\n"
+				,opts.probNum
+			);
+		exit(0);
+	}
 	
 	if(clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t1) ){
 		perror("Error measuring time\n");	
 	}
-	
+	sol = func();
 	if(clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t2) ){
 		perror("Error measuring time\n");	
 	}
+	
+	printEulerSol(sol);
 	
 	if(!opts.quiet){
 		double elapsed = 
