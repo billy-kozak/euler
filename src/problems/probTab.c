@@ -13,6 +13,6 @@
 *                                   GLOBALS                                   *
 ******************************************************************************/
 struct eulerSol (*problemTab[NUM_EULER_PROBLEMS])(void) = {
-	euler_prob1,
+	euler_prob1,euler_prob2,
 	NULL
 };
