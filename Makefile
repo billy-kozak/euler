@@ -71,6 +71,7 @@ $(BINARY): $(OBJ_FILES) | $(EXE_DIR)/.dir_dummy
 clean: C_DIRS = $(SRC_DIRS) $(INC_DIRS)                     
 clean: CORE_FILES += $(foreach dir,$(C_DIRS),$(wildcard $(dir)/*~))
 clean: CORE_FILES += $(foreach dir,$(C_DIRS),$(wildcard $(dir)/*#))
+clean: CORE_FILES += Makefile~
 clean:
 	rm -f $(BUILD_DIR)/* $(EXE_DIR)/* $(CORE_FILES)
 
