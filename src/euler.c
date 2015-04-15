@@ -179,7 +179,10 @@ int main(int argc, char** argv){
 	struct eulerSol sol;
 	
 	if(opts.probNum >= NUM_EULER_PROBLEMS){
-		fprintf(stderr,"Error: problems only go to 501\n");
+		fprintf(
+				stderr,"Error: problems only go to %d\n",
+				NUM_EULER_PROBLEMS
+			);
 		exit(-1);
 	}
 	
