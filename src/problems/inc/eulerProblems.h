@@ -13,12 +13,15 @@
 ******************************************************************************/
 struct eulerSol{
 	enum{
+		INT,UNSIGNED,
 		I32,U32,
 		I64,U64,
 		DOUBLE
 	}type;
 	
 	union{
+		int        i;
+		unsigned  u;
 		uint32_t u32;
 		int32_t  i32;
 		uint64_t u64;
