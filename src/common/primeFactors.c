@@ -1,17 +1,23 @@
 /******************************************************************************
-* Contains the euler problem solver function table                            *
+* Implements generic algorithms relating to prime factorization               *
 ******************************************************************************/
 
 /******************************************************************************
 *                                  INCLUDES                                   *
 ******************************************************************************/
-#include "eulerProblems.h"
-#include "eulerSolvers.h"
-
-#include <stdlib.h>
+#include "primeFactors.h"
 /******************************************************************************
-*                                   GLOBALS                                   *
+*                            FUNCTION DEFINITIONS                             *
 ******************************************************************************/
-struct eulerSol (*problemTab[NUM_EULER_PROBLEMS])(void) = {
-	euler_prob1,euler_prob2,euler_prob3
-};
+/**
+* Slow, simple factorization method which is (very) light on memory
+**/
+uint64_t primeFactorLargest_trialDivision(uint64_t target){
+	for(uint64_t n=(target/2); n>1; n--){
+		
+		if(!(target%n)){
+			return primeFactorLargest_trialDivision(n);
+		}
+	}
+	return target;
+}

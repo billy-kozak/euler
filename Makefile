@@ -21,8 +21,8 @@ PROJECT := euler
 BUILD_DIR := obj
 EXE_DIR   := bin
 
-INC_DIRS += src/inc src/problems/inc
-SRC_DIRS += src src/problems
+INC_DIRS += src/inc src/problems/inc src/common/inc
+SRC_DIRS += src src/problems src/common
 ###############################################################################
 #                                 BUILD FILES                                 #
 ###############################################################################

@@ -1,13 +1,11 @@
-#ifndef _EULER_SOLVERS_H_
-#define _EULER_SOLVERS_H_
+#ifndef _PRIME_FACTORS_H_
+#define _PRIME_FACTORS_H_
 /******************************************************************************
 *                                  INCLUDES                                   *
 ******************************************************************************/
-#include "eulerProblems.h"
+#include <stdint.h>
 /******************************************************************************
 *                             FUNCTION PROTOTYPES                             *
 ******************************************************************************/
-struct eulerSol euler_prob1(void);
-struct eulerSol euler_prob2(void);
-struct eulerSol euler_prob3(void);
-#endif //_EULER_SOLVERS_H_
+uint64_t primeFactorLargest_trialDivision(uint64_t target);
+#endif //_PRIME_FACTORS_H_
