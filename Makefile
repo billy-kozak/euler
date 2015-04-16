@@ -32,7 +32,7 @@ C_FILES   += $(foreach f, $(C_PATHS),$(notdir $(f)))
 OBJ_FILES += $(foreach f,$(C_FILES),$(BUILD_DIR)/$(patsubst %.c,%.o,$(f)))
 DEP_FILES += $(foreach f,$(C_FILES),$(BUILD_DIR)/$(patsubst %.c,%.d,$(f)))
 
-LIBS = -lrt
+LIBS = -lrt -lm
 
 BINARY := $(EXE_DIR)/$(PROJECT)
 
