@@ -118,8 +118,9 @@ def addToTab(probTab,probNum):
 		tabLines[tabEnd-1] = tabLines[tabEnd-1].rstrip() + add
 	
 	fullText = prefix + ''.join(tabLines) + suffix
-	
-	print fullText
+
+	with open(probTab,'w') as fout:
+		fout.write(fullText)
 	
 def addProbFile(sourceTree,probNum):
 	"""
@@ -166,15 +167,13 @@ if __name__ == '__main__':
 	solHead = os.path.join(sourceTree,SOL_HEADER_REL_PATH)
 	
 	try:
-		pass
-		#addProto(solHead,probNum)
+		addProto(solHead,probNum)
 	except Exception as e:
 		sys.stderr.write(str(e)+'\n')
 		exit(-1)
 	
 	try:
-		pass
-		#addToTab(probTab,probNum)
+		addToTab(probTab,probNum)
 	except Exception as e:
 		sys.stderr.write(str(e)+'\n')
 		exit(-1)
