@@ -208,7 +208,7 @@ int main(int argc, char** argv){
 	if(!opts.quiet){
 		double elapsed = 
 			(double)(t2.tv_sec-t1.tv_sec) +
-			((double)(t2.tv_nsec-t1.tv_nsec))/1000000.0;
+			((double)(t2.tv_nsec-t1.tv_nsec))/1000000000.0;
 			
 		printf("Completed in %lf seconds\n",elapsed);
 	}
