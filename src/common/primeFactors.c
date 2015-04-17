@@ -17,6 +17,10 @@
 uint64_t primeFactorLargest_trialDivision(uint64_t target){
 	uint64_t sr = (uint64_t)sqrt(target);
 	
+	if(target <= 2){
+		return target;
+	}
+	
 	//not sure if this bit is really necessarry...
 	//I don't totally grasp the nuances of the uint64 to double to uint64
 	//conversion but I believe it may be possible that the squareoot
@@ -32,8 +36,8 @@ uint64_t primeFactorLargest_trialDivision(uint64_t target){
 		
 		if(!(target%n)){
 			c1 = primeFactorLargest_trialDivision(n);
-			c2 = target/c1;
-			if(c2 == primeFactorLargest_trialDivision(c2)){
+			c2 = primeFactorLargest_trialDivision(target/c1);
+			if(c2 > c1){
 				//c2 is prime
 				return c2;
 			}
