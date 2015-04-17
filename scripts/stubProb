@@ -1,0 +1,187 @@
+#!/usr/bin/env python
+###############################################################################
+# Script to add problem stubs to soruce code                                  #
+#                                                                             #
+# Manually adding functions to a (potentially) 500 element table should be    #
+# avoided. This script automates the process of creating this boilerplate     #
+# code.                                                                       #
+###############################################################################
+
+###############################################################################
+#                                   IMPORTS                                   #
+###############################################################################
+import sys
+import os
+###############################################################################
+#                                  CONSTANTS                                  #
+###############################################################################
+TAB_WIDTH=8
+ROW_WIDTH=80
+SOURCE_TREE="./src"
+
+PROB_TAB_REL_PATH="problems/probTab.c"
+SOL_HEADER_REL_PATH="problems/inc/eulerSolvers.h"
+
+SOL_FUNC_TEMPLATE="euler_prob%d"
+SOL_FUNC_PROTO_TEMPLATE="struct eulerSol %s(void);"
+PROB_FILE_PATH_TEMPLATE="problems/problem%d.c"
+
+
+ENTRY_MARK="//OPEN STUBPROB GENERATION//"
+EXIT_MARK ="//END STUBPROB GENERATION//"
+
+PROB_FILE_TEMPLATE="""
+/****************************************************************************** 
+*                                  INCLUDES                                   * 
+******************************************************************************/ 
+#include "eulerProblems.h"                                                      
+#include "eulerSolvers.h"
+/****************************************************************************** 
+*                            FUNCTION DEFINITIONS                             * 
+******************************************************************************/
+/**                                                                             
+* Solution for problem %(pNum)d                                                        
+**/                                                                             
+struct eulerSol euler_prob%(pNum)d(void){
+	struct eulerSol sol = {U64};
+	
+	return sol;
+}
+"""
+###############################################################################
+#                                    CODE                                     #
+###############################################################################
+def addProto(solHead,n):
+	"""Add function prototype to header file
+	"""
+	prototype = SOL_FUNC_PROTO_TEMPLATE%(SOL_FUNC_TEMPLATE%n)
+	entered = False
+	buf = ''
+	with open(solHead) as fin:
+		for line in fin:
+			if line.strip() == ENTRY_MARK:
+				entered = True
+			elif line.strip() == EXIT_MARK:
+				if entered:
+					buf += prototype+'\n'
+				else:
+					raise RuntimeError(
+							('File %s is not '
+							'formatted for dynamic' 
+							'generation')%solHead
+						)
+			buf += line
+	
+	with open(solHead,'w') as fout:
+		fout.write(buf)
+		
+def addToTab(probTab,probNum):
+	"""add function to problem table
+	"""
+	
+	prefix = ''
+	tabLines = []
+	suffix = ''
+	
+	stage = 0
+	func = SOL_FUNC_TEMPLATE%probNum
+	
+	with open(probTab) as fin:
+		for line in fin:
+			if line.strip() == ENTRY_MARK:
+				stage = 1
+			elif line.strip() == EXIT_MARK:
+				stage = 2
+			
+			if(stage == 0):
+				prefix += line
+			elif stage == 1:
+				tabLines.append(line)
+			else:
+				suffix += line
+	
+	tabEnd = 0
+	for i,line in enumerate(tabLines):
+		if line.strip() == '};':
+			tabEnd = i
+	
+	if not tabEnd:
+		raise RuntimeError(
+				('File %s is not formatted for dynamic '
+				'generation')%probTab
+			)
+	add = ', '+func+'\n'
+	expLine = tabLines[tabEnd-1].expandtabs(TAB_WIDTH).rstrip()
+	if len(expLine+add)>ROW_WIDTH:
+		tabLines.insert(tabEnd,'\t'+func+'\n')
+	else:
+		tabLines[tabEnd-1] = tabLines[tabEnd-1].rstrip() + add
+	
+	fullText = prefix + ''.join(tabLines) + suffix
+	
+	print fullText
+	
+def addProbFile(sourceTree,probNum):
+	"""
+	"""
+	probFilePath = os.path.join(
+			sourceTree,PROB_FILE_PATH_TEMPLATE%probNum
+		)
+	
+	with open(probFilePath,'w') as fout:
+		fout.write(PROB_FILE_TEMPLATE%{'pNum':probNum})
+	
+if __name__ == '__main__':
+	"""Program entry
+	"""
+	if(len(sys.argv) < 2):
+		sys.stderr.write(
+				"USAGE: %s probNum [sourceTree]\n"%sys.argv[0]
+			)
+		exit()
+		
+	try:
+		probNum = int(sys.argv[1])
+	except ValueError:
+		sys.stderr.write("Error require integer problem number\n")
+		exit(-1)
+	
+	if(probNum < 1):
+		sys.stderr.write("Error: minimum problem number is 1\n")
+		exit(-1)
+	
+	if len(sys.argv) == 3:
+		sourceTree = sys.argv[2]
+	else:
+		sourceTree = SOURCE_TREE
+	
+	if(not os.path.isdir(sourceTree)):
+		sys.stderr.write(
+				("Error: couldn't find source tree at"
+				" %s\n"%sourceTree)
+			)
+		exit(-1)
+	
+	probTab = os.path.join(sourceTree,PROB_TAB_REL_PATH)
+	solHead = os.path.join(sourceTree,SOL_HEADER_REL_PATH)
+	
+	try:
+		pass
+		#addProto(solHead,probNum)
+	except Exception as e:
+		sys.stderr.write(str(e)+'\n')
+		exit(-1)
+	
+	try:
+		pass
+		#addToTab(probTab,probNum)
+	except Exception as e:
+		sys.stderr.write(str(e)+'\n')
+		exit(-1)
+		
+	
+	try:
+		addProbFile(sourceTree,probNum)
+	except Exception as e:
+		sys.stderr.write(str(e)+'\n')
+		exit(-1)

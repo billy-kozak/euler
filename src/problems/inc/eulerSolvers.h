@@ -7,7 +7,12 @@
 /******************************************************************************
 *                             FUNCTION PROTOTYPES                             *
 ******************************************************************************/
+//the following list of function prototypes is managed by a script and
+//should be dealth with carefully
+
+//OPEN STUBPROB GENERATION//
 struct eulerSol euler_prob1(void);
 struct eulerSol euler_prob2(void);
 struct eulerSol euler_prob3(void);
+//END STUBPROB GENERATION//
 #endif //_EULER_SOLVERS_H_
