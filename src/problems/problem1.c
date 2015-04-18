@@ -13,21 +13,14 @@
 ******************************************************************************/
 #include "eulerProblems.h"
 #include "eulerSolvers.h"
+
+#include "simpleSeries.h"
 /******************************************************************************
 *                             FUNCTION PROTOTYPES                             *
 ******************************************************************************/
-static unsigned sumOfN_Multiples(unsigned m,unsigned max);
 /******************************************************************************
 *                            FUNCTION DEFINITIONS                             *
 ******************************************************************************/
-/**
-* Sum of n multiples less than some max
-**/
-static unsigned sumOfN_Multiples(unsigned m,unsigned max){
-	unsigned top = max - (max%m);
-	
-	return ((top+m)*(top))/(m*2);
-}
 /**
 * Solution for problem 1
 **/
