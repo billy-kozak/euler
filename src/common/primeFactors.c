@@ -8,6 +8,7 @@
 #include "primeFactors.h"
 
 #include <math.h>
+#include <stdbool.h>
 /******************************************************************************
 *                            FUNCTION DEFINITIONS                             *
 ******************************************************************************/
@@ -47,4 +48,16 @@ uint64_t primeFactorLargest_trialDivision(uint64_t target){
 		}
 	}
 	return target;
+}
+/**
+* Test if value is prime by trail division
+**/
+bool isPrime_trialDivision(unsigned n){
+	for(unsigned k = 2; k < n; k++){
+		if( !(n%k) ){
+			return false;
+		}
+	}
+	
+	return true;
 }
