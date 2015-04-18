@@ -18,5 +18,6 @@
 //OPEN STUBPROB GENERATION//
 struct eulerSol (*problemTab[NUM_EULER_PROBLEMS])(void) = {
 	euler_prob1, euler_prob2, euler_prob3, euler_prob4, euler_prob5
+	euler_prob6
 };
 //END STUBPROB GENERATION//
