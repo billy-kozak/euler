@@ -113,7 +113,7 @@ def addToTab(probTab,probNum):
 	add = ', '+func+'\n'
 	expLine = tabLines[tabEnd-1].expandtabs(TAB_WIDTH).rstrip()
 	if len(expLine+add)>ROW_WIDTH:
-		tabLines.insert(tabEnd,'\t'+func+'\n')
+		tabLines.insert(tabEnd,'\t,'+func+'\n')
 	else:
 		tabLines[tabEnd-1] = tabLines[tabEnd-1].rstrip() + add
 	
