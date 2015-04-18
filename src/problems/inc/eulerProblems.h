@@ -16,7 +16,8 @@ struct eulerSol{
 		INT,UNSIGNED,
 		I32,U32,
 		I64,U64,
-		DOUBLE
+		DOUBLE,
+		STRING
 	}type;
 	
 	union{
@@ -27,6 +28,7 @@ struct eulerSol{
 		uint64_t u64;
 		int64_t  i64;
 		double    d;
+		char*     s;
 	}val;
 };
 /******************************************************************************

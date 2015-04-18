@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 /******************************************************************************
 *                            FUNCTION DEFINITIONS                             *
 ******************************************************************************/
@@ -37,6 +38,10 @@ void printEulerSol(struct eulerSol sol){
 			break;
 		case DOUBLE:
 			printf("%lf\n",sol.val.d);
+			break;
+		case STRING:
+			printf("%s",sol.val.s);
+			free(sol.val.s);
 			break;
 		default:
 			fprintf(stderr,"This should never run!\n");

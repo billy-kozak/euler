@@ -19,5 +19,6 @@ struct eulerSol euler_prob5(void);
 struct eulerSol euler_prob6(void);
 struct eulerSol euler_prob7(void);
 struct eulerSol euler_prob8(void);
+struct eulerSol euler_prob9(void);
 //END STUBPROB GENERATION//
 #endif //_EULER_SOLVERS_H_
