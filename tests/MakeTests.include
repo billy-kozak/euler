@@ -1,0 +1,67 @@
+###############################################################################
+# Allows building of tests                                                    #
+###############################################################################
+
+###############################################################################
+#                                    VARS                                     #
+###############################################################################
+NO_DEPS_TARGETS += tests runtests
+###############################################################################
+#                                 BUILD DIRS                                  #
+###############################################################################
+TEST_SRC_DIR := tests
+TEST_INC_DIRS := tests/inc
+
+TEST_BIN_DIR := tests/bin
+TEST_BUILD_DIR := tests/build
+###############################################################################
+#                                 BUILD FILES                                 #
+###############################################################################
+TEST_PATHS +=  $(foreach dir, $(TEST_SRC_DIR),$(wildcard $(dir)/*.c))
+TEST_FILES +=  $(foreach f, $(TEST_PATHS),$(notdir $(f)))
+TEST_BINARIES +=  $(foreach f,$(TEST_FILES),$(TEST_BIN_DIR)/$(basename $(f)))
+TEST_DEPS +=  $(foreach f,$(TEST_FILES),$(TEST_BUILD_DIR)/$(basename $(f)).d)
+
+TEST_INCLUDES += $(foreach f,$(TEST_INC_DIRS),-I$(f))
+TEST_INCLUDES += -I$(SRC_TREE)
+
+TEST_DIRS += $(TEST_SRC_DIR) $(TEST_INC_DIRS)
+
+CLEAN_FILES += $(foreach dir,$(TEST_DIRS),$(wildcard $(dir)/*~))
+CLEAN_FILES += $(foreach dir,$(TEST_DIRS),$(wildcard $(dir)/*\#))
+CLEAN_FILES += $(wildcard $(TEST_BIN_DIR)/*) $(wildcard $(TEST_BUILD_DIR)/*)
+###############################################################################
+#                                   TARGETS                                   #
+###############################################################################
+.PHONY: tests
+
+tests: $(TEST_BUILD_DIR)/.dir_dummy $(TEST_BIN_DIR)/.dir_dummy
+
+tests: CFLAGS+= $(TEST_INCLUDES)
+tests: CFLAGS+= -DDEBUG=1
+tests: CFLAGS+= -march=native -Os -flto
+tests: $(TEST_BINARIES)
+
+runtests: tests
+	@echo "Running all tests!"
+	@./scripts/runTests $(TEST_BINARIES)
+
+$(TEST_DEPS): $(TEST_BUILD_DIR)/%.d : $(TEST_SRC_DIR)/%.c
+	$(CC) $(CFLAGS) $(TEST_INCLUDES) -M -MT \
+	"$(TEST_BIN_DIR)/$(notdir $(basename $@)) $@" $< > $@
+
+$(TEST_BINARIES): $(TEST_BIN_DIR)/% : $(TEST_SRC_DIR)/%.c
+	$(CC) $(CFLAGS) $< $(LIBS) -o $@
+	
+ifneq (,$(filter $(MAKECMDGOALS), tests runtests))
+
+#next two conditonals prevent make from running on dry run or when 
+#invoked for tab-completion
+ifneq (n,$(findstring n,$(firstword $(MAKEFLAGS))))
+ifneq (p,$(findstring p,$(firstword $(MAKEFLAGS))))
+-include $(TEST_DEPS)
+endif
+endif
+
+
+endif

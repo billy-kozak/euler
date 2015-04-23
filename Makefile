@@ -15,17 +15,23 @@ CFLAGS += -Wall -std=gnu99
 LDFLAGS += -Wall
 
 PROJECT := euler
+
+NO_DEPS_TARGETS += clean directories
 ###############################################################################
 #                                 BUILD DIRS                                  #
 ###############################################################################
 BUILD_DIR := obj
 EXE_DIR   := bin
 
+SRC_TREE += src
+
 INC_DIRS += src/inc src/problems/inc src/common/inc
 SRC_DIRS += src src/problems src/common
 ###############################################################################
 #                                 BUILD FILES                                 #
 ###############################################################################
+MAKE_TESTS := tests/MakeTests.include
+
 C_PATHS   += $(foreach dir, $(SRC_DIRS),$(wildcard $(dir)/*.c))
 
 C_FILES   += $(foreach f, $(C_PATHS),$(notdir $(f)))
@@ -41,10 +47,19 @@ INCLUDES += $(foreach f,$(INC_DIRS),-I$(f))
 CFLAGS += $(INCLUDES)
 
 vpath %.c $(SRC_DIRS)
+
+C_DIRS += $(SRC_DIRS) $(INC_DIRS)                     
+	
+CLEAN_FILES += $(foreach dir,$(C_DIRS),$(wildcard $(dir)/*~))
+CLEAN_FILES += $(foreach dir,$(C_DIRS),$(wildcard $(dir)/*\#))
+CLEAN_FILES += $(wildcard Makefile~)
+CLEAN_FILES += $(wildcard $(BUILD_DIR)/*) $(wildcard $(EXE_DIR)/*)
 ###############################################################################
 #                                   TARGETS                                   #
 ###############################################################################
 all: optomized
+
+include $(MAKE_TESTS)
 
 debug: CFLAGS += -DDEBUG=1
 debug: $(BINARY)
@@ -68,13 +83,18 @@ $(BUILD_DIR)/%.o: %.c | $(BUILD_DIR)/.dir_dummy
 $(BINARY): $(OBJ_FILES) | $(EXE_DIR)/.dir_dummy
 	$(LD) $(LDFLAGS) $^ $(LIBS) -o $@
 
-clean: C_DIRS = $(SRC_DIRS) $(INC_DIRS)                     
-clean: CORE_FILES += $(foreach dir,$(C_DIRS),$(wildcard $(dir)/*~))
-clean: CORE_FILES += $(foreach dir,$(C_DIRS),$(wildcard $(dir)/*#))
-clean: CORE_FILES += Makefile~
 clean:
-	rm -f $(BUILD_DIR)/* $(EXE_DIR)/* $(CORE_FILES)
+	rm -f $(CLEAN_FILES)
 
-ifneq ($(MAKECMDGOALS),clean)
+ifeq (,$(filter $(MAKECMDGOALS), $(NO_DEPS_TARGETS)))
+
+#next two conditonals prevent make from running on dry run or when 
+#invoked for tab-completion
+ifneq (n,$(findstring n,$(firstword $(MAKEFLAGS))))
+ifneq (p,$(findstring p,$(firstword $(MAKEFLAGS))))
 -include $(DEP_FILES)
+endif
+endif
+
+
 endif
