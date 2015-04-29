@@ -32,9 +32,7 @@ struct w1_vect* primeGen_sieveOfEratosthenes(unsigned bot, unsigned top){
 	size_t nBytes = top/8+(top%8?1:0);
 	uint8_t* bitField = calloc(nBytes,1);
 	struct w1_vect* primes = w1vect_init(AUTO,0,UNSIGNED);
-	int n = bot;
-	
-	uint64_t sum = 0;
+	unsigned n = bot;
 	
 	if(!bitField || !primes){
 		free(bitField);
@@ -44,7 +42,6 @@ struct w1_vect* primeGen_sieveOfEratosthenes(unsigned bot, unsigned top){
 	
 	while(n < top){
 		w1vect_appendUnsigned(primes,n);
-		sum += n;
 		
 		//note that i=n*n is allowed by the algorithm but that this
 		//could result in overflow.
