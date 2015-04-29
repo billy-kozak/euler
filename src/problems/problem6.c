@@ -31,7 +31,7 @@
 * Solution for problem 6                                                        
 **/                                                                             
 struct eulerSol euler_prob6(void){
-	struct eulerSol sol = {INT};
+	struct eulerSol sol = {INTEGER};
 	
 	unsigned s1 = sumOf_firstN(PROBLEM_6_MAGIC);
 	unsigned s2 = somOfN_firstSquares(PROBLEM_6_MAGIC);

@@ -30,6 +30,10 @@ TEST_DIRS += $(TEST_SRC_DIR) $(TEST_INC_DIRS)
 CLEAN_FILES += $(foreach dir,$(TEST_DIRS),$(wildcard $(dir)/*~))
 CLEAN_FILES += $(foreach dir,$(TEST_DIRS),$(wildcard $(dir)/*\#))
 CLEAN_FILES += $(wildcard $(TEST_BIN_DIR)/*) $(wildcard $(TEST_BUILD_DIR)/*)
+
+REQUIRED_TEST_LIBS := -lrt
+TEST_LIBS += $(filter-out $(REQUIRED_TEST_LIBS),$(LIBS))
+TEST_LIBS += $(filter $(LIBS),$(REQUIRED_TEST_LIBS))
 ###############################################################################
 #                                   TARGETS                                   #
 ###############################################################################
@@ -51,7 +55,7 @@ $(TEST_DEPS): $(TEST_BUILD_DIR)/%.d : $(TEST_SRC_DIR)/%.c
 	"$(TEST_BIN_DIR)/$(notdir $(basename $@)) $@" $< > $@
 
 $(TEST_BINARIES): $(TEST_BIN_DIR)/% : $(TEST_SRC_DIR)/%.c
-	$(CC) $(CFLAGS) $< $(LIBS) -o $@
+	$(CC) $(CFLAGS) $< $(TEST_LIBS) -o $@
 	
 ifneq (,$(filter $(MAKECMDGOALS), tests runtests))
 

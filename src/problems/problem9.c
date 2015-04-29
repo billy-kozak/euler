@@ -42,13 +42,16 @@ struct eulerSol euler_prob9(void){
 	
 	if(OUTPUT_MODE_PRINT_TRIPPLE){
 		const char* trippleFormat = "a=%d b=%d c=%d\n";
+		char* s;
+		
 		size_t sLenMax = strlen(trippleFormat)+3*MAX_INTEGER_PRINT;
 		
-		sol.type = STRING;
+		sol.type = POINTER;
 		
-		sol.val.s = calloc(sLenMax,sizeof(char));
+		s = calloc(sLenMax,sizeof(char));
+		sol.val.p = s;
 		snprintf(
-				sol.val.s,sLenMax,trippleFormat,trip.a,
+				s,sLenMax,trippleFormat,trip.a,
 				trip.b,trip.c
 			);
 	}

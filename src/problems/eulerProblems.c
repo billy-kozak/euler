@@ -18,7 +18,7 @@
 **/
 void printEulerSol(struct eulerSol sol){
 	switch(sol.type){
-		case INT:
+		case INTEGER:
 			printf("%d\n",sol.val.i);
 			break;
 		case UNSIGNED:
@@ -39,9 +39,9 @@ void printEulerSol(struct eulerSol sol){
 		case DOUBLE:
 			printf("%lf\n",sol.val.d);
 			break;
-		case STRING:
-			printf("%s",sol.val.s);
-			free(sol.val.s);
+		case POINTER:
+			printf("%s",(char*)sol.val.p);
+			free(sol.val.p);
 			break;
 		default:
 			fprintf(stderr,"This should never run!\n");
