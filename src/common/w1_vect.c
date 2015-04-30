@@ -392,8 +392,14 @@ int w1vect_updateIndex(struct w1_vect* v){
 }
 /**
 * Frees a dynamically allocated w1 vector
+*
+* Ignores NULL pointers
 **/
 void w1vect_free(struct w1_vect* v){
+	
+	if(!v){
+		return;
+	}
 	
 	struct _w1Node* p = v->nodeZero.next;
 	
@@ -415,6 +421,8 @@ void w1vect_free(struct w1_vect* v){
 }
 /**
 * Frees iterator dynamic memory
+*
+* Ignores NULL pointers
 **/
 void w1vect_freeIter(struct w1_iter* i){
 	free(i);
@@ -436,6 +444,14 @@ struct w1_iter* w1vect_initIter(struct w1_vect* v){
 	itr->v = v;
 	
 	return itr;
+}
+/**
+* Resets the iterator so that it points to the first element again
+**/
+void w1vect_resetIter(struct w1_iter* i){
+	i->node = &(i->v->nodeZero);
+	i->nodeNum = 0;
+	i->memInd = 0;
 }
 /**
 * Initilizes a w1 vector on the heap.

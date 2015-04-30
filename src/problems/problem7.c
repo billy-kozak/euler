@@ -12,10 +12,11 @@
 #include "eulerSolvers.h"
 
 #include "primeFactors.h"
+#include "primeGeneration.h"
 /******************************************************************************
 *                                   DEFINES                                   *
 ******************************************************************************/
-#define PROBLEM_7_MAGIC 10001
+#define PROBLEM_7_MAGIC 10000
 /****************************************************************************** 
 *                            FUNCTION DEFINITIONS                             * 
 ******************************************************************************/
@@ -24,15 +25,8 @@
 **/                                                                             
 struct eulerSol euler_prob7(void){
 	struct eulerSol sol = {U64};
-	
-	
-	unsigned count = 1;
-	for(unsigned n = 3; count != PROBLEM_7_MAGIC; n+=2){
-		if(isPrime_trialDivision(n)){
-			count += 1;
-			sol.val.u64 = n;
-		}
-	}
+
+	sol.val.u64 = primeN_trialDivision(PROBLEM_7_MAGIC);
 	
 	return sol;
 }

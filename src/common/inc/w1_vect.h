@@ -94,6 +94,7 @@ double* w1vect_nextDouble(struct w1_iter* i);
 
 void w1vect_freeIter(struct w1_iter* i);
 struct w1_iter* w1vect_initIter(struct w1_vect* v);
+void w1vect_resetIter(struct w1_iter* i);
 int w1vect_updateIndex(struct w1_vect* v);
 void w1vect_getRaw(struct w1_vect* v,void* dest,size_t len,int i);
 int w1vect_appendRaw(struct w1_vect* v,void* src,size_t len);
