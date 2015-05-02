@@ -4,3 +4,4 @@ obj/
 *#
 tests/bin/
 tests/build/
+*.swp
