@@ -4,6 +4,11 @@
 *                                  INCLUDES                                   *
 ******************************************************************************/
 #include <math.h>
+#include <stdbool.h>
+
+/******************************************************************************
+*                                   MACROS                                    *
+******************************************************************************/
 /******************************************************************************
 *                              INLINE FUNCTIONS                               *
 ******************************************************************************/
@@ -20,5 +25,12 @@ static inline unsigned gteSquareRoot(unsigned n){
 	}
 
 	return root;
+}
+/**
+* Slow method of detecting multiply overflow
+**/
+static inline bool umul_overflow(unsigned a, unsigned b,unsigned* res){
+	*res = a*b;
+	return (a != 0 && *res / a != b);
 }
 #endif //_SIMPLE_MATH_H

@@ -20,23 +20,107 @@
 * What is the value of the first triangle number to have over five hundred    *
 * divisors?                                                                   *
 ******************************************************************************/
-/****************************************************************************** 
-*                                  INCLUDES                                   * 
-******************************************************************************/ 
-#include "eulerProblems.h"                                                      
+/******************************************************************************
+*                                  INCLUDES                                   *
+******************************************************************************/
+#include "eulerProblems.h"
 #include "eulerSolvers.h"
+
+#include "primeGeneration.h"
+#include "simpleMath.h"
+
+#include <assert.h>
+/******************************************************************************
+*                                    TYPES                                    *
+******************************************************************************/
+struct primeCount{
+	unsigned primes;
+	unsigned primePowers;
+};
 /******************************************************************************
 *                                   DEINFES                                   *
 ******************************************************************************/
 #define PROBLEM12_MAGIC 500
-/****************************************************************************** 
-*                            FUNCTION DEFINITIONS                             * 
+/******************************************************************************
+*                             FUNCTION PROTOTYPES                             *
 ******************************************************************************/
-/**                                                                             
-* Solution for problem 12                                                        
-**/                                                                             
+static struct primeCount countPrimeFactors(
+		struct trialPrimeGen* gen, unsigned n
+	);
+static unsigned divCount(unsigned n, unsigned b,unsigned d);
+/******************************************************************************
+*                            FUNCTION DEFINITIONS                             *
+******************************************************************************/
+/**
+*
+*
+* TODO - handle possible memory error
+**/
+static struct primeCount countPrimeFactors(
+		struct trialPrimeGen* gen, unsigned n
+	){
+	struct primeCount counts = {0,0};
+	unsigned root = gteSquareRoot(n);
+	unsigned prime;
+	unsigned pInd = 0;
+
+	if(!gen->v->len){
+
+		prime = trailDivideGenNext(gen);
+	}
+
+	do{
+		pInd += 1;
+
+		if(!(n%prime)){
+			//note that we know that this won't overflow because
+			//we are less than the square root of n
+			unsigned power = prime*prime;
+			counts.primes += 1;
+			counts.primePowers += divCount(n,prime,power);
+		}
+
+		if(pInd >= gen->v->len){
+			prime = trailDivideGenNext(gen);
+		}
+		else{
+			prime = w1vect_getIndUnsigned(gen->v,pInd);
+		}
+
+	}while(prime <= root);
+
+	return counts;
+}
+/**
+*
+**/
+static unsigned divCount(unsigned n, unsigned b, unsigned d){
+	unsigned count = 0;
+	unsigned last = b;
+	unsigned next = last;
+
+	do{
+		if(n%next){
+			break;
+		}
+
+		count += 1;
+
+		if(umul_overflow(last,d,&next)){
+			//overflow occured
+			return count;
+		}
+
+		last = next;
+	}while(next <= n);
+
+	return count;
+}
+/**
+* Solution for problem 12
+**/
 struct eulerSol euler_prob12(void){
 	struct eulerSol sol = {U64};
-	
+
 	return sol;
 }
