@@ -127,14 +127,24 @@ unsigned tailDivideGenNext(struct trialPrimeGen* gen){
 		if(w1vect_appendUnsigned(gen->v,2)){
 			goto memFail;
 		}
+		gen->last = 2;
 		return 2;
 	}
+	else if(gen->v->len == 1){
+		if(w1vect_appendUnsigned(gen->v,3)){
+			goto memFail;
+		}
+		gen->last = 3;
+		return 3;
+	}
 
-	for(next = gen->last+2;trialDivideVect(gen->v,gen->itr,next);next+=2);
+	for(next = gen->last+2;!trialDivideVect(gen->v,gen->itr,next);next+=2);
 
 	if(w1vect_appendUnsigned(gen->v,next)){
 		goto memFail;
 	}
+
+	gen->last = next;
 
 	return next;
 
@@ -201,6 +211,5 @@ static bool trialDivideVect(struct w1_vect* v,struct w1_iter* itr,unsigned n){
 			return false;
 		}
 	}
-
 	return true;
 }

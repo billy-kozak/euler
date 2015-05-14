@@ -26,11 +26,9 @@ static unsigned nthPrime_byTrialDivideGen(unsigned n){
 
 	for(unsigned i = 0; i < n; i++){
 		prime = tailDivideGenNext(gen);
-		printf("%d\n",prime);
 	}
 
 	trialDivideGenFree(gen);
-
 	return prime;
 }
 /**
