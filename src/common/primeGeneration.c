@@ -119,7 +119,7 @@ unsigned primeN_trialDivision(unsigned n){
 * next prime number after last (first number is 2). Will return 0 on memory
 * error.
 **/
-unsigned tailDivideGenNext(struct trialPrimeGen* gen){
+unsigned trailDivideGenNext(struct trialPrimeGen* gen){
 
 	unsigned next;
 

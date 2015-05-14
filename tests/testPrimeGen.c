@@ -25,7 +25,7 @@ static unsigned nthPrime_byTrialDivideGen(unsigned n){
 	unsigned prime = 0;
 
 	for(unsigned i = 0; i < n; i++){
-		prime = tailDivideGenNext(gen);
+		prime = trailDivideGenNext(gen);
 	}
 
 	trialDivideGenFree(gen);
