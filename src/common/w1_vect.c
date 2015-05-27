@@ -48,8 +48,8 @@ int f (struct w1_vect* v, dType x){ \
 **/
 #define W1GETIND_FUNC(f,w1Type,w1Name,dType) \
 dType f (struct w1_vect* v,int i){ \
-	int nodeNum = (i/v->nodeSize); \
-	int memInd  = (i%v->nodeSize); \
+	int nodeNum = (i>>NODE_SIZE_EXP); \
+	int memInd  = (i&(NODE_SIZE-1)); \
 	assert(v->type == w1Type ); \
 	assert(i <= v->len); \
 	struct _w1Node* p = w1vect_getNode(v,nodeNum); \
@@ -67,7 +67,7 @@ dType* f (struct w1_iter* i){ \
 	dType* ret = NULL; \
 	assert(i->v->type == w1Type ); \
 	assert(i->memInd <= i->node->len); \
-	if(i->memInd == i->v->nodeSize && i->node->next){ \
+	if(i->memInd == NODE_SIZE && i->node->next){ \
 		i->node = i->node->next; \
 		i->memInd = 0; \
 		i->nodeNum += 1; \
@@ -176,7 +176,7 @@ static size_t w1TypeSize(enum anyTypeID t){
 			return 0;
 			break;
 	}
-	
+
 	return 0;
 }
 /**
@@ -190,12 +190,12 @@ static size_t w1TypeSize(enum anyTypeID t){
 static int w1incrMem(struct w1_vect* v){
 	v->writePtr->len += 1;
 	v->len           += 1;
-	
-	if(v->writePtr->len == v->nodeSize){
+
+	if(v->writePtr->len == NODE_SIZE){
 		//attempt to allocate more memory
 		return w1Alloc(v);
 	}
-	
+
 	return 0;
 }
 /**
@@ -213,18 +213,18 @@ static int w1Alloc(struct w1_vect* v){
 	if(!wp->next){
 		goto fail0;
 	}
-	
-	wp->next->memory.raw = malloc(v->elSize*v->nodeSize);
+
+	wp->next->memory.raw = malloc(v->elSize*NODE_SIZE);
 	if(!wp->next->memory.raw){
 		goto fail1;
 	}
-	
+
 	wp->next->prev = wp;
 	v->writePtr = wp->next;
-	
+
 	if(v->indOn==AUTO){
 		assert(v->indLen <= v->indSize);
-		
+
 		//store node to the index if index is turned on!
 		if(v->indSize == v->indLen){
 			size_t nextSize = v->indSize+INDEX_START_SIZE;
@@ -236,17 +236,17 @@ static int w1Alloc(struct w1_vect* v){
 				//failed to allocate more memory for the index
 				goto fail1;
 			}
-			
+
 			v->index = tmp;
 			v->indSize += INDEX_START_SIZE;
 		}
-		
+
 		v->index[v->indLen] = wp->next;
 		v->indLen += 1;
 	}
-	
+
 	return 0;
-	
+
 	fail1:
 		free(wp->next);
 	fail0:
@@ -261,19 +261,19 @@ static struct _w1Node* w1vect_getNode(struct w1_vect* v,int i){
 
 	struct _w1Node* p = &(v->nodeZero);
 	int count = 0;
-	
+
 	if(v->indOn){
-		
+
 		if( (v->indOn == AUTO) || (i<v->indLen) ){
 			assert(i < v->indLen);
 			return v->index[i];
 		}
 		else if(v->indLen){
 			p = v->index[v->indLen-1];
-			count = (v->indLen-1)*v->nodeSize;
+			count = (v->indLen-1)*NODE_SIZE;
 		}
 	}
-	
+
 	while( count < i){
 		count ++;
 		p = p->next;
@@ -289,26 +289,26 @@ static struct _w1Node* w1vect_getNode(struct w1_vect* v,int i){
 * the given length is a multiple of the vector's element size
 **/
 int w1vect_appendRaw(struct w1_vect* v,void* src,size_t len){
-	
+
 	size_t nodeBytes = v->writePtr->len * v->elSize;
 	void* dest = v->writePtr->memory.u8 + nodeBytes;
-	
+
 	//length must be multiple of the element size
 	assert(!(len%v->elSize));
-	
+
 	do{
 		struct _w1Node* wp = v->writePtr;
-		
+
 		//remaining write space in bytes
-		size_t wSpace = (v->nodeSize-wp->len)*v->elSize;
+		size_t wSpace = (NODE_SIZE-wp->len)*v->elSize;
 		size_t wSize  = (len<wSpace)?len:wSpace;
-		
+
 		memcpy(dest,src,wSize);
-		
+
 		len-=wSize;
 		wp->len += wSize;
 		v->len  += wSize;
-		
+
 		if(len){
 			if(w1Alloc(v)){
 				//error allocating memory
@@ -316,7 +316,7 @@ int w1vect_appendRaw(struct w1_vect* v,void* src,size_t len){
 			}
 		}
 	}while(len);
-	
+
 	return 0;
 }
 /**
@@ -328,20 +328,20 @@ int w1vect_appendRaw(struct w1_vect* v,void* src,size_t len){
 * vector after the index; this function will not check for that condition.
 **/
 void w1vect_getRaw(struct w1_vect* v,void* dest,size_t len,int i){
-	int nodeNum = (i/v->nodeSize);
-	int memInd  = (i%v->nodeSize);
+	int nodeNum = (i>>NODE_SIZE_EXP);
+	int memInd  = (i&(NODE_SIZE-1));
 	struct _w1Node* p = w1vect_getNode(v,nodeNum);
-	
+
 	assert(v->len >= (i+(len/v->elSize)) );
-	
+
 	while(len){
 		assert(p);
-		
-		size_t nodeRemain = v->nodeSize-memInd;
+
+		size_t nodeRemain = NODE_SIZE-memInd;
 		size_t rLen = (len < nodeRemain)?(len):(nodeRemain);
-		
+
 		memcpy(dest,(p->memory.u8+memInd),rLen);
-		
+
 		len -= rLen;
 		dest = (void*) (((uint8_t*)dest)+rLen);
 		memInd = 0;
@@ -355,10 +355,10 @@ void w1vect_getRaw(struct w1_vect* v,void* dest,size_t len,int i){
 * zero on success and one on failure (memory error)
 **/
 int w1vect_updateIndex(struct w1_vect* v){
-	
-	size_t nodeCount = v->len/v->nodeSize;
+
+	size_t nodeCount = v->len>>NODE_SIZE_EXP;
 	struct _w1Node* p;
-	
+
 	if(nodeCount >= v->indSize){
 		size_t newSize = nodeCount;
 
@@ -367,27 +367,27 @@ int w1vect_updateIndex(struct w1_vect* v){
 			//memory error
 			return 1;
 		}
-		
+
 		v->indSize = newSize;
 	}
-	
+
 	if(v->indLen){
 		p = v->index[v->indLen-1];
 	}
 	else{
 		p = &(v->nodeZero);
 	}
-	
+
 	while(nodeCount > v->indLen){
 		assert(v->indLen < v->indSize);
-		
+
 		v->index[v->indLen] = p;
 		p = p->next;
 		v->indLen += 1;
-		
+
 		assert(p);
 	}
-	
+
 	return 0;
 }
 /**
@@ -396,27 +396,27 @@ int w1vect_updateIndex(struct w1_vect* v){
 * Ignores NULL pointers
 **/
 void w1vect_free(struct w1_vect* v){
-	
+
 	if(!v){
 		return;
 	}
-	
+
 	struct _w1Node* p = v->nodeZero.next;
-	
+
 	if(v->indOn){
 		free(v->index);
 	}
-	
+
 	free(v->nodeZero.memory.raw);
-	
+
 	while(p){
 		struct _w1Node* next = p->next;
 		free(p->memory.raw);
 		free(p);
-		
+
 		p = next;
 	}
-	
+
 	free(v);
 }
 /**
@@ -434,15 +434,15 @@ void w1vect_freeIter(struct w1_iter* i){
 **/
 struct w1_iter* w1vect_initIter(struct w1_vect* v){
 	struct w1_iter* itr = calloc(sizeof(struct w1_iter),1);
-	
+
 	if(!itr){
 		//memory error
 		return NULL;
 	}
-	
+
 	itr->node = &(v->nodeZero);
 	itr->v = v;
-	
+
 	return itr;
 }
 /**
@@ -458,13 +458,10 @@ void w1vect_resetIter(struct w1_iter* i){
 *
 * Can fail on memory error, in which case NULL will be returned.
 **/
-struct w1_vect* w1vect_init(enum w1_indexMode im,size_t ns,enum anyTypeID t){
-	
+struct w1_vect* w1vect_init(enum w1_indexMode im,enum anyTypeID t){
+
 	size_t elSize = w1TypeSize(t);
-	struct w1_vect tmp = {
-			t,elSize,(ns)?(ns):NODE_SIZE_DEFAULT,
-			im
-		};
+	struct w1_vect tmp = {t,elSize,im};
 	struct w1_vect* ret = malloc(sizeof(struct w1_vect));
 	if(!ret){
 		goto fail2;
@@ -472,32 +469,32 @@ struct w1_vect* w1vect_init(enum w1_indexMode im,size_t ns,enum anyTypeID t){
 
 	//work around initilization of constant variables
 	memcpy(ret,&tmp,sizeof(struct w1_vect));
-		
+
 	if(!elSize){
 		//invalid type
 		return NULL;
 	}
-	
+
 	//initilize first node
-	ret->nodeZero.memory.raw = malloc(ret->elSize*ret->nodeSize);
+	ret->nodeZero.memory.raw = malloc(ret->elSize*NODE_SIZE);
 	if(!ret->nodeZero.memory.raw){
 		goto fail0;
 	}
 	ret->writePtr = &(ret->nodeZero);
-	
+
 	if(im==AUTO){
 		ret->indSize = INDEX_START_SIZE;
 		ret->index = malloc(ret->indSize*sizeof(struct w1_vect*));
-		
+
 		if(!ret->index){
 			goto fail1;
 		}
 		ret->index[ret->indLen] = ret->writePtr;
 		ret->indLen += 1;
 	}
-	
+
 	return ret;
-	
+
 	fail2:
 		free(ret->nodeZero.memory.raw);
 	fail1:

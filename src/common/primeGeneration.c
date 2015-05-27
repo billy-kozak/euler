@@ -37,7 +37,7 @@ struct w1_vect* primeGen_sieveOfEratosthenes(unsigned bot, unsigned top){
 
 	size_t nBytes = top/8+(top%8?1:0);
 	uint8_t* bitField = calloc(nBytes,1);
-	struct w1_vect* primes = w1vect_init(AUTO,0,UNSIGNED);
+	struct w1_vect* primes = w1vect_init(AUTO,UNSIGNED);
 	unsigned n = bot;
 
 	if(!bitField || !primes){
@@ -75,7 +75,7 @@ unsigned primeN_trialDivision(unsigned n){
 		return 2;
 	}
 
-	primes = w1vect_init(AUTO,0,UNSIGNED);
+	primes = w1vect_init(AUTO,UNSIGNED);
 	if(!primes){
 		goto fail;
 	}
@@ -161,7 +161,7 @@ struct trialPrimeGen* trialDivideGenInit(void){
 		goto fail;
 	}
 
-	gen->v = w1vect_init(AUTO,0,UNSIGNED);
+	gen->v = w1vect_init(AUTO,UNSIGNED);
 	if(!gen->v){
 		goto fail;
 	}
