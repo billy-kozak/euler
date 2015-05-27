@@ -30,6 +30,7 @@
 #include "simpleMath.h"
 
 #include <assert.h>
+#include <stdio.h>
 /******************************************************************************
 *                                    TYPES                                    *
 ******************************************************************************/
@@ -65,8 +66,10 @@ static struct primeCount countPrimeFactors(
 	unsigned pInd = 0;
 
 	if(!gen->v->len){
-
 		prime = trailDivideGenNext(gen);
+	}
+	else{
+		prime = w1vect_getIndUnsigned(gen->v,pInd);
 	}
 
 	do{
@@ -77,7 +80,7 @@ static struct primeCount countPrimeFactors(
 			//we are less than the square root of n
 			unsigned power = prime*prime;
 			counts.primes += 1;
-			counts.primePowers += divCount(n,prime,power);
+			counts.primePowers += divCount(n,power,prime);
 		}
 
 		if(pInd >= gen->v->len){
@@ -88,6 +91,12 @@ static struct primeCount countPrimeFactors(
 		}
 
 	}while(prime <= root);
+
+	if(!counts.primes){
+		//n is prime!
+		//in a perfect world we would feed it back into our generator!
+		counts.primes += 1;
+	}
 
 	return counts;
 }
@@ -117,10 +126,66 @@ static unsigned divCount(unsigned n, unsigned b, unsigned d){
 	return count;
 }
 /**
+* This is wrong...
+**/
+static unsigned factorsFromCounts(unsigned primes, unsigned primePowers){
+	unsigned c1 = 1<<primes;
+	unsigned c2 = (c1>>1)*primePowers;
+
+	return c1+c2;
+}
+/**
+*
+* TODO - handle possible memory errors
+**/
+static unsigned findTriangleDiv(unsigned limit){
+
+	unsigned triN = 1;
+	struct primeCount evenCount = {0,0};
+	struct primeCount oddCount = {0,0};
+
+	unsigned factors = 1;
+
+	struct trialPrimeGen* gen = trialDivideGenInit();
+	if(!gen){
+		return 0;
+	}
+
+	while(factors < limit){
+
+		triN += 1;
+		oddCount = countPrimeFactors(gen,triN+1);
+		factors = factorsFromCounts(
+				oddCount.primes+evenCount.primes,
+				oddCount.primePowers+evenCount.primePowers
+			);
+
+		if(factors >= limit){
+			break;
+		}
+
+		triN +=1;
+		evenCount = countPrimeFactors(gen,(triN+1)>>1);
+
+		factors = factorsFromCounts(
+				oddCount.primes+evenCount.primes,
+				oddCount.primePowers+evenCount.primePowers
+			);
+	}
+
+	trialDivideGenFree(gen);
+
+	printf("%d\n",factors);
+
+	return ((triN+1)*triN)/2;
+}
+/**
 * Solution for problem 12
 **/
 struct eulerSol euler_prob12(void){
-	struct eulerSol sol = {U64};
+	struct eulerSol sol = {UNSIGNED};
+
+	sol.val.u = findTriangleDiv(7);
 
 	return sol;
 }
