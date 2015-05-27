@@ -48,8 +48,8 @@ CFLAGS += $(INCLUDES)
 
 vpath %.c $(SRC_DIRS)
 
-C_DIRS += $(SRC_DIRS) $(INC_DIRS)                     
-	
+C_DIRS += $(SRC_DIRS) $(INC_DIRS)
+
 CLEAN_FILES += $(foreach dir,$(C_DIRS),$(wildcard $(dir)/*~))
 CLEAN_FILES += $(foreach dir,$(C_DIRS),$(wildcard $(dir)/*\#))
 CLEAN_FILES += $(wildcard Makefile~)
@@ -73,10 +73,10 @@ directories: $(BUILD_DIR)/.dir_dummy $(EXE_DIR)/.dir_dummy
 %.dir_dummy:
 	mkdir -p $(dir $(@))
 	@touch $(@)
-	
+
 $(BUILD_DIR)/%.d: %.c
-	$(CC) $(CFLAGS) -M -MT "$(patsubst %.d,%.o,$@) $@" $< > $@
-	
+	$(CC) $(CFLAGS) -MF $@ -M -MT "$(patsubst %.d,%.o,$@) $@" $<
+
 $(BUILD_DIR)/%.o: %.c | $(BUILD_DIR)/.dir_dummy
 	$(CC) $(CFLAGS) -c $< -o $@
 
@@ -88,7 +88,7 @@ clean:
 
 ifeq (,$(filter $(MAKECMDGOALS), $(NO_DEPS_TARGETS)))
 
-#next two conditonals prevent make from running on dry run or when 
+#next two conditonals prevent make from running on dry run or when
 #invoked for tab-completion
 ifneq (n,$(findstring n,$(firstword $(MAKEFLAGS))))
 ifneq (p,$(findstring p,$(firstword $(MAKEFLAGS))))
