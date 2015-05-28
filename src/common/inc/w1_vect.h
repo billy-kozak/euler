@@ -41,6 +41,8 @@ struct w1_vect{
 	size_t                  indSize;
 	size_t                   indLen;
 	struct _w1Node**         index;
+
+	struct _w1Node*          _pool;
 };
 
 struct w1_iter{
@@ -99,5 +101,6 @@ int w1vect_updateIndex(struct w1_vect* v);
 void w1vect_getRaw(struct w1_vect* v,void* dest,size_t len,int i);
 int w1vect_appendRaw(struct w1_vect* v,void* src,size_t len);
 void w1vect_free(struct w1_vect* v);
+void w1vect_reset(struct w1_vect* v);
 struct w1_vect* w1vect_init(enum w1_indexMode im,enum anyTypeID t);
 #endif //_W1_VECT_H_

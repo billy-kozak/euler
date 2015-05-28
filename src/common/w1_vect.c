@@ -209,14 +209,24 @@ static int w1incrMem(struct w1_vect* v){
 static int w1Alloc(struct w1_vect* v){
 	struct _w1Node* wp = v->writePtr;
 
-	wp->next = calloc(sizeof(struct _w1Node),1);
-	if(!wp->next){
-		goto fail0;
-	}
+	if(!v->_pool){
+		wp->next = calloc(sizeof(struct _w1Node),1);
+		if(!wp->next){
+			goto fail0;
+		}
 
-	wp->next->memory.raw = malloc(v->elSize*NODE_SIZE);
-	if(!wp->next->memory.raw){
-		goto fail1;
+		wp->next->memory.raw = malloc(v->elSize*NODE_SIZE);
+		if(!wp->next->memory.raw){
+			goto fail1;
+		}
+	}
+	else{
+		//already have memory ready for this node!
+		wp->next = v->_pool;
+		v->_pool = v->_pool->next;
+
+		wp->next->next = NULL;
+		wp->next->len = 0;
 	}
 
 	wp->next->prev = wp;
@@ -397,11 +407,15 @@ int w1vect_updateIndex(struct w1_vect* v){
 **/
 void w1vect_free(struct w1_vect* v){
 
+	struct _w1Node* p = v->nodeZero.next;
+
+	//chain the pool to the end of the node linked list so that we can
+	//free everything at once!
+	v->writePtr->next = v->_pool;
+
 	if(!v){
 		return;
 	}
-
-	struct _w1Node* p = v->nodeZero.next;
 
 	if(v->indOn){
 		free(v->index);
@@ -452,6 +466,29 @@ void w1vect_resetIter(struct w1_iter* i){
 	i->node = &(i->v->nodeZero);
 	i->nodeNum = 0;
 	i->memInd = 0;
+}
+/**
+* Clear contents of the vector without freeing any memory
+**/
+void w1vect_reset(struct w1_vect* v){
+
+	if(v->nodeZero.next){
+		//pool old nodes after nodeZero
+		struct _w1Node* oldPool = v->_pool;
+		//insert old node linked list at start of the pool linked list
+		v->_pool = v->nodeZero.next;
+		v->writePtr->next = oldPool;
+	}
+
+	v->writePtr = &(v->nodeZero);
+	v->len = 0;
+	v->nodeZero.len = 0;
+	v->indLen = 0;
+
+	if(v->indOn==AUTO){
+		v->index[v->indLen] = v->writePtr;
+		v->indLen += 1;
+	}
 }
 /**
 * Initilizes a w1 vector on the heap.
