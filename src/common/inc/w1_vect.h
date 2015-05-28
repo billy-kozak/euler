@@ -12,7 +12,7 @@
 *                                   DEFINES                                   *
 ******************************************************************************/
 #define NODE_SIZE_EXP      12
-#define NODE_SIZE          (1UL<<12)
+#define NODE_SIZE          (1UL<<NODE_SIZE_EXP)
 #define INDEX_START_SIZE   128
 /******************************************************************************
 *                                    TYPES                                    *
