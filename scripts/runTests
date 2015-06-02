@@ -5,5 +5,8 @@
 for f in $@
 do
 	echo "Running test \"$(basename $f)\"..."
+	MALLOC_TRACE=tests/info/mtrace_$(basename $f).txt
+	export MALLOC_TRACE
 	$f
+	mtrace ${MALLOC_TRACE}
 done

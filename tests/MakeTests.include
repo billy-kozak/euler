@@ -14,6 +14,7 @@ TEST_INC_DIRS := tests/inc
 
 TEST_BIN_DIR := tests/bin
 TEST_BUILD_DIR := tests/build
+TEST_INFO_DIR := tests/info
 ###############################################################################
 #                                 BUILD FILES                                 #
 ###############################################################################
@@ -40,6 +41,7 @@ TEST_LIBS += $(filter $(LIBS),$(REQUIRED_TEST_LIBS))
 .PHONY: tests
 
 tests: $(TEST_BUILD_DIR)/.dir_dummy $(TEST_BIN_DIR)/.dir_dummy
+tests: $(TEST_INFO_DIR)/.dir_dummy
 
 tests: CFLAGS+= $(TEST_INCLUDES)
 tests: CFLAGS+= -DDEBUG=1
@@ -56,10 +58,10 @@ $(TEST_DEPS): $(TEST_BUILD_DIR)/%.d : $(TEST_SRC_DIR)/%.c
 
 $(TEST_BINARIES): $(TEST_BIN_DIR)/% : $(TEST_SRC_DIR)/%.c
 	$(CC) $(CFLAGS) $< $(TEST_LIBS) -o $@
-	
+
 ifneq (,$(filter $(MAKECMDGOALS), tests runtests))
 
-#next two conditonals prevent make from running on dry run or when 
+#next two conditonals prevent make from running on dry run or when
 #invoked for tab-completion
 ifneq (n,$(findstring n,$(firstword $(MAKEFLAGS))))
 ifneq (p,$(findstring p,$(firstword $(MAKEFLAGS))))

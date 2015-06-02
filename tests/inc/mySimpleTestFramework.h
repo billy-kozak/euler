@@ -5,9 +5,18 @@
 ******************************************************************************/
 #include <stdlib.h>
 #include <stdio.h>
+
+#ifdef __GNUC__
+#include <mcheck.h>
+#endif
 /******************************************************************************
 *                                   DEFINES                                   *
 ******************************************************************************/
+#ifndef __GNUC__
+#define mtrace() {}
+#define muntrace() {}
+#endif
+
 #define _STRINGIFY(x) #x
 #define _TOSTRING(x) _STRINGIFY(x)
 
@@ -28,7 +37,8 @@
 * Place in function to start block of tests to run
 **/
 #define MSTF_START() \
-	do{ struct mstfData _data = {0};
+	do{ struct mstfData _data = {0}; \
+		mtrace();
 /**
 * Declare between MSTF_START and MSTF_END to run a test. If the boolean value
 * of the test is false then the test has failed.
@@ -42,10 +52,11 @@
 * Place in function after MSTF_START() and all tests to close test block
 **/
 #define MSTF_END() \
+		muntrace(); \
 		MSTF_MSGDONE(_data.fail,_data.fail+_data.pass);}while(0);
 /******************************************************************************
 *                                    TYPES                                    *
-******************************************************************************/	
+******************************************************************************/
 struct mstfData{
 	char* ret;
 	int fail;
