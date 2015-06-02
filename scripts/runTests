@@ -20,5 +20,6 @@ do
 	$f
 
 	#keep output silent if no errors...
-	mtrace ${MALLOC_TRACE} | sed "0,/^${NO_LEAK_STRING}/{//d;}"
+	mtrace ${MALLOC_TRACE} | \
+		sed -e '1!b' -e "0,/^${NO_LEAK_STRING}\$/{//d;}"
 done
