@@ -61,7 +61,7 @@ all: optomized
 
 include $(MAKE_TESTS)
 
-debug: CFLAGS += -DDEBUG=1
+debug: CFLAGS += -DDEBUG=1 -g
 debug: $(BINARY)
 
 optomized: CFLAGS += -DNDEBUG=1 -march=native -Os -flto
