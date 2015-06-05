@@ -57,7 +57,10 @@ static unsigned factorsFromCounts(
 *                            FUNCTION DEFINITIONS                             *
 ******************************************************************************/
 /**
+* Counts the number of prime factors and unqiue prime powers (deg>2) of n
 *
+* requires a primegen object to use to track prime numbers and a vector to
+* use to store a list of counts of unique prime powers.
 *
 * TODO - handle possible memory error
 **/
@@ -89,7 +92,12 @@ static struct primeCount countPrimeFactors(
 			unsigned power = prime*prime;
 			unsigned powerCount = divCount(n,power,prime);
 			counts.primes += 1;
-			w1vect_appendUnsigned(counts.powers,powerCount);
+
+			if(powerCount){
+				w1vect_appendUnsigned(
+						counts.powers,powerCount
+					);
+			}
 		}
 
 		if(pInd >= gen->v->len){
@@ -110,7 +118,7 @@ static struct primeCount countPrimeFactors(
 	return counts;
 }
 /**
-*
+* Counts the number of unique X for which (n%(b*d^X))==0
 **/
 static unsigned divCount(unsigned n, unsigned b, unsigned d){
 	unsigned count = 0;
@@ -135,7 +143,18 @@ static unsigned divCount(unsigned n, unsigned b, unsigned d){
 	return count;
 }
 /**
-* This is wrong...
+* Uses counts of primes and unique prime powers to calculate factors of a #
+*
+* pc1 and pc2 contain a count of prime factors and list of counts of unique
+* prime counters for two coprime numbers X and Y in order to give the number of
+* factors in X*Y
+*
+* To get the number of factors of a number it suffices to have a count of prime
+* factors and a list of counts of unique prime power factors. In this function,
+* we split this into two lists because it is useful for our specific problem.
+*
+* Unfortuantley, I deduced this algorithm by inspection so I have no good
+* explanation for it other than to show an example.
 **/
 static unsigned factorsFromCounts(
 		const struct primeCount* pc1,const struct primeCount* pc2
@@ -151,10 +170,8 @@ static unsigned factorsFromCounts(
 	for(unsigned i = 0; i < pc1->powers->len; i++){
 		unsigned powers = w1vect_getIndUnsigned(pc1->powers,i);
 
-		for(unsigned n = 0; n < powers; n++){
-			c2 += levFact;
-		}
-		levFact += (levFact>>1);
+		c2 += levFact*powers;
+		levFact += (levFact>>1)*powers;
 	}
 
 
@@ -162,15 +179,36 @@ static unsigned factorsFromCounts(
 	for(unsigned i = 0; i < pc2->powers->len; i++){
 		unsigned powers = w1vect_getIndUnsigned(pc2->powers,i);
 
-		for(unsigned n = 0; n < powers; n++){
-			c2 += levFact;
-		}
-		levFact += (levFact>>1);
+		c2 += levFact*powers;
+		levFact += (levFact>>1)*powers;
 	}
 
 	return c1+c2;
 }
 /**
+* Finds the first triangle number to have at least limit factors
+*
+* In this function we exploit the fact that all triangle number are of the
+* form (N*(N+1))/2.
+*
+* Because N and N+1 are necesarily coprime we can count the number of prime
+* factors and prime power factors (of deg>1) for each of N and N+1 and use them
+* to calculate the number of factors in the triangle number. That the numbers
+* are coprime means that their lists of prime power counts and prime factor
+* counts are non-intersecting.
+*
+* For example 36=(8*9/2)
+* 8/2=4 -> 2*2
+* 9 -> 3*3
+*
+* 2,3 -> 1,2,3,6        - 2^2 factors
+* 2   ->   4   12      - 2^1 factors
+* 3   ->     9,18,36   - (2^1+2^0) factors
+* _______________
+* 36 -> 1,2,3,4,6,9,18,24,36
+*
+* We can also exploit the fact that one of N and N+1 is necesarily even to
+* simplyfy counting of prime factors somewhat.
 *
 * TODO - handle possible memory errors
 **/
@@ -220,7 +258,8 @@ static unsigned findTriangleDiv(unsigned limit){
 struct eulerSol euler_prob12(void){
 	struct eulerSol sol = {UNSIGNED};
 
-	sol.val.u = findTriangleDiv(7);
+	//sol.val.u = findTriangleDiv(7);
+	sol.val.u = findTriangleDiv(PROBLEM12_MAGIC);
 
 	return sol;
 }
