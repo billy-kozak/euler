@@ -18,25 +18,35 @@
 /******************************************************************************
 *                             FUNCTION PROTOTYPES                             *
 ******************************************************************************/
+static unsigned seedFromClock(void);
 static bool mstf_test_intRandWR(enum w1_indexMode im,bool updateInd);
 static bool mstf_test_intRandWR_iter(enum w1_indexMode im);
 /******************************************************************************
 *                                    TESTS                                    *
 ******************************************************************************/
 /**
-* Tests writing random data to a w1_vect and reading it back
+* Get "random" (i.e. not at all random) seed from system clock for srand
 **/
-static bool mstf_test_intRandWR(enum w1_indexMode im,bool updateInd){
-
-	struct timespec spec;
+static unsigned seedFromClock(void){
 	unsigned seed;
-	bool ret = true;
-	struct w1_vect* v = w1vect_init(im,INTEGER);
+	struct timespec spec;
 
 	clock_gettime(CLOCK_REALTIME, &spec);
 	seed = (spec.tv_sec)*1000 + (spec.tv_nsec)/1000000;
 
+	return seed;
+}
+/**
+* Tests writing random data to a w1_vect and reading it back
+**/
+static bool mstf_test_intRandWR(enum w1_indexMode im,bool updateInd){
+
+	bool ret = true;
+	struct w1_vect* v = w1vect_init(im,INTEGER);
+	unsigned seed = seedFromClock();
+
 	srand(seed);
+
 	for(int i = 0; i < RAND_WR_COUNT; i++){
 		w1vect_appendInteger(v,rand());
 	}
@@ -62,15 +72,11 @@ static bool mstf_test_intRandWR(enum w1_indexMode im,bool updateInd){
 **/
 static bool mstf_test_intRandWR_iter(enum w1_indexMode im){
 
-	struct timespec spec;
-	unsigned seed;
 	bool ret = true;
 
 	struct w1_vect* v = w1vect_init(im,INTEGER);
 	struct w1_iter* itr = w1vect_initIter(v);
-
-	clock_gettime(CLOCK_REALTIME, &spec);
-	seed = (spec.tv_sec)*1000 + (spec.tv_nsec)/1000000;
+	unsigned seed = seedFromClock();
 
 	srand(seed);
 	for(int i = 0; i < RAND_WR_COUNT; i++){
@@ -90,6 +96,49 @@ static bool mstf_test_intRandWR_iter(enum w1_indexMode im){
 
 	return ret;
 }
+/**
+*
+**/
+static bool mstf_test_resetWR(void){
+
+	struct w1_vect* v = w1vect_init(AUTO,UNSIGNED);
+	unsigned seed = seedFromClock();
+	bool ret = true;
+
+	srand(seed);
+	for(int i = 0; i < RAND_WR_COUNT; i++){
+		w1vect_appendUnsigned(v,rand());
+	}
+	srand(seed);
+	for(int i = 0; i < RAND_WR_COUNT; i++){
+		if(w1vect_getIndUnsigned(v,i) != rand()){
+			ret = false;
+			goto done;
+			break;
+		}
+	}
+
+	w1vect_reset(v);
+
+	seed = seedFromClock();
+	srand(seed);
+	for(int i = 0; i < RAND_WR_COUNT; i++){
+		w1vect_appendUnsigned(v,rand());
+	}
+	srand(seed);
+	for(int i = 0; i < RAND_WR_COUNT; i++){
+		if(w1vect_getIndUnsigned(v,i) != rand()){
+			ret = false;
+			goto done;
+			break;
+		}
+	}
+
+done:
+	w1vect_free(v);
+	return ret;
+}
+
 /**
 * Test entry point
 **/
@@ -126,6 +175,10 @@ int main(int argc, char** argv){
 				"Failed integer write readback with "
 				"cache in manual mode and a cache update",
 				mstf_test_intRandWR(MANUAL,true)
+			);
+		MSTF_RUN(
+				"Failed reset vector write readback ",
+				mstf_test_resetWR()
 			);
 	MSTF_END();
 
