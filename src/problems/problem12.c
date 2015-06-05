@@ -36,7 +36,7 @@
 ******************************************************************************/
 struct primeCount{
 	unsigned primes;
-	unsigned primePowers;
+	struct w1_vect* powers;
 };
 /******************************************************************************
 *                                   DEINFES                                   *
@@ -46,9 +46,13 @@ struct primeCount{
 *                             FUNCTION PROTOTYPES                             *
 ******************************************************************************/
 static struct primeCount countPrimeFactors(
-		struct trialPrimeGen* gen, unsigned n
+		struct trialPrimeGen* gen, unsigned n,
+		struct w1_vect* mem
 	);
 static unsigned divCount(unsigned n, unsigned b,unsigned d);
+static unsigned factorsFromCounts(
+		const struct primeCount* pc1,const struct primeCount* pc2
+	);
 /******************************************************************************
 *                            FUNCTION DEFINITIONS                             *
 ******************************************************************************/
@@ -58,12 +62,16 @@ static unsigned divCount(unsigned n, unsigned b,unsigned d);
 * TODO - handle possible memory error
 **/
 static struct primeCount countPrimeFactors(
-		struct trialPrimeGen* gen, unsigned n
+		struct trialPrimeGen* gen, unsigned n,
+		struct w1_vect* mem
 	){
-	struct primeCount counts = {0,0};
+
+	struct primeCount counts = {0,mem};
 	unsigned root = gteSquareRoot(n);
 	unsigned prime;
 	unsigned pInd = 0;
+
+	w1vect_reset(mem);
 
 	if(!gen->v->len){
 		prime = trailDivideGenNext(gen);
@@ -79,8 +87,9 @@ static struct primeCount countPrimeFactors(
 			//note that we know that this won't overflow because
 			//we are less than the square root of n
 			unsigned power = prime*prime;
+			unsigned powerCount = divCount(n,power,prime);
 			counts.primes += 1;
-			counts.primePowers += divCount(n,power,prime);
+			w1vect_appendUnsigned(counts.powers,powerCount);
 		}
 
 		if(pInd >= gen->v->len){
@@ -128,9 +137,31 @@ static unsigned divCount(unsigned n, unsigned b, unsigned d){
 /**
 * This is wrong...
 **/
-static unsigned factorsFromCounts(unsigned primes, unsigned primePowers){
-	unsigned c1 = 1<<primes;
-	unsigned c2 = (c1>>1)*primePowers;
+static unsigned factorsFromCounts(
+		const struct primeCount* pc1,const struct primeCount* pc2
+	){
+
+	unsigned c1 = 1<<(pc1->primes+pc2->primes);
+	unsigned c2 = 0;
+
+	unsigned levFact = c1>>1;
+
+	//for first vector
+	for(unsigned i = 0; i < pc1->powers->len; i++){
+		unsigned powers = w1vect_getIndUnsigned(pc1->powers,i);
+		for(unsigned n = 0; n < powers; n++){
+			c2 += levFact;
+		}
+		levFact += (levFact<<1);
+	}
+	//for second vector
+	for(unsigned i = 0; i < pc1->powers->len; i++){
+		unsigned powers = w1vect_getIndUnsigned(pc2->powers,i);
+		for(unsigned n = 0; n < powers; n++){
+			c2 += levFact;
+		}
+		levFact += (levFact<<1);
+	}
 
 	return c1+c2;
 }
@@ -141,12 +172,14 @@ static unsigned factorsFromCounts(unsigned primes, unsigned primePowers){
 static unsigned findTriangleDiv(unsigned limit){
 
 	unsigned triN = 1;
-	struct primeCount evenCount = {0,0};
-	struct primeCount oddCount = {0,0};
+	struct primeCount evenCount = {0,NULL};
+	struct primeCount oddCount = {0,NULL};
 
 	unsigned factors = 1;
 
 	struct trialPrimeGen* gen = trialDivideGenInit();
+	struct w1_vect* mem = w1vect_init(AUTO,UNSIGNED);
+
 	if(!gen){
 		return 0;
 	}
@@ -154,26 +187,20 @@ static unsigned findTriangleDiv(unsigned limit){
 	while(factors < limit){
 
 		triN += 1;
-		oddCount = countPrimeFactors(gen,triN+1);
-		factors = factorsFromCounts(
-				oddCount.primes+evenCount.primes,
-				oddCount.primePowers+evenCount.primePowers
-			);
+		oddCount = countPrimeFactors(gen,triN+1,mem);
+		factors = factorsFromCounts(&oddCount,&evenCount);
 
 		if(factors >= limit){
 			break;
 		}
 
 		triN +=1;
-		evenCount = countPrimeFactors(gen,(triN+1)>>1);
-
-		factors = factorsFromCounts(
-				oddCount.primes+evenCount.primes,
-				oddCount.primePowers+evenCount.primePowers
-			);
+		evenCount = countPrimeFactors(gen,(triN+1)>>1,mem);
+		factors = factorsFromCounts(&oddCount,&evenCount);
 	}
 
 	trialDivideGenFree(gen);
+	w1vect_free(mem);
 
 	printf("%d\n",factors);
 
