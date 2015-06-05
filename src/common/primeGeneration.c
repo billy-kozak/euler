@@ -47,13 +47,13 @@ struct w1_vect* primeGen_sieveOfEratosthenes(unsigned bot, unsigned top){
 	}
 
 	while(n < top){
+		unsigned prod;
 		w1vect_appendUnsigned(primes,n);
 
-		//note that i=n*n is allowed by the algorithm but that this
-		//could result in overflow.
-		//leave as n+n until we have efficient overflow detection
-		for(unsigned i = n+n; i < top; i += n){
-			BITFIELD_SET(bitField,i);
+		if(!umul_overflow(n,n,&prod)){
+			for(unsigned i = prod; i < top; i += n){
+				BITFIELD_SET(bitField,i);
+			}
 		}
 
 		for(n = (n+1); BITFIELD_CHECK(bitField,n) && n<top; n++);
