@@ -15,6 +15,14 @@
 static struct unsigned256 build256(
 		uint64_t a,uint64_t b,uint64_t c,uint64_t d
 	);
+static bool testCAdd(
+		struct unsigned256 a,struct unsigned256 b,
+		struct unsigned256 exp
+	);
+static bool testCMul(
+		struct unsigned256 a,struct unsigned256 b,
+		struct unsigned256 exp
+	);
 /******************************************************************************
 *                                    TESTS                                    *
 ******************************************************************************/
@@ -39,6 +47,16 @@ static bool testCAdd(
 		struct unsigned256 exp
 	){
 	struct unsigned256 answer = _c_uadd256(&a,&b);
+	return memcmp(&answer,&exp,sizeof(struct unsigned256)) == 0;
+}
+/**
+* Used to test adding with pure C implementation
+**/
+static bool testCMul(
+		struct unsigned256 a,struct unsigned256 b,
+		struct unsigned256 exp
+	){
+	struct unsigned256 answer = _c_umul256(&a,&b);
 	return memcmp(&answer,&exp,sizeof(struct unsigned256)) == 0;
 }
 /**
