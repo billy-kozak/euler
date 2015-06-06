@@ -50,10 +50,34 @@ static bool testCAdd(
 int main(int argc, char** argv){
 	 MSTF_START();
 	 MSTF_RUN(
-	 	 "Failed to add numbers 0xFF and 0xFF",
-	 	 testCAdd(
+	 	 	"Failed to add numbers 0xFF and 0xFF",
+	 	 	testCAdd(
 	 	 	 	build256(0,0,0,0xFF),build256(0,0,0,0xFF),
 	 	 	 	build256(0,0,0,0x1FE)
+	 	 	 )
+	 	 );
+
+	 MSTF_RUN(
+	 		"Failed to add large random numbers",
+	 	 	testCAdd(
+	 	 	 	build256(
+	 	 	 		0x013770a75bd398e3ULL,
+	 	 	 		0x4ae68eb17d2d8b7eULL,
+	 	 	 		0x22dd3fa14da9ac82ULL,
+	 	 	 		0x462c2861a7f4e22dULL
+	 	 	 	),
+	 	 	 	build256(
+	 	 	 		0x00a561d6ffb65e5aULL,
+	 	 	 		0x868ddc591cc4b822ULL,
+	 	 	 		0x65869f56452ff2d9ULL,
+	 	 	 		0xe3426bae736a8c40ULL
+	 	 	 	),
+	 	 	 	build256(
+	 	 	 		0x01dcd27e5b89f73dULL,
+	 	 	 		0xd1746b0a99f243a0ULL,
+	 	 	 		0x8863def792d99f5cULL,
+	 	 	 		0x296e94101b5f6e6dULL
+	 	 	 	)
 	 	 	 )
 	 	 );
 	 MSTF_END();
