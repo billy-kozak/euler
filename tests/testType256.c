@@ -98,6 +98,25 @@ int main(int argc, char** argv){
 	 	 	 	)
 	 	 	 )
 	 	 );
+	  MSTF_RUN(
+	 		"Failed to multiply large random numbers",
+	 	 	testCMul(
+	 	 	 	build256(
+	 	 	 		0x0ULL,0x0ULL,
+	 	 	 		0x3680c7eded497696ULL,0x33b07bdd1fc3bbe4ULL
+	 	 	 	),
+	 	 	 	build256(
+	 	 	 		0x0ULL,0x0ULL,
+	 	 	 		0x9239add0173a31f6ULL,0x948478c8bca70189ULL
+	 	 	 	),
+	 	 	 	build256(
+	 	 	 		0x1f21b9b389fdeb6fULL,
+	 	 	 		0x539cb0f522c4b7e9ULL,
+	 	 	 		0xf280457dcabf85f5ULL,
+	 	 	 		0xcd0f4740c5377104ULL
+	 	 	 	)
+	 	 	 )
+	 	 );
 	 MSTF_END();
 
 	 return 0;
