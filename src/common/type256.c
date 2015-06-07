@@ -30,6 +30,21 @@ struct unsigned256 _c_uadd256(struct unsigned256* a, struct unsigned256* b){
 	return y;
 }
 /**
+* Pure C implementation of 256 bit type unsigned subtraction
+**/
+struct unsigned256 _c_usub256(struct unsigned256* a, struct unsigned256* b){
+
+	struct unsigned256 y;
+	uint64_t carry = 0;
+
+	for(int i = 0; i < 4; i++){
+		y.words.w64[i] = a->words.w64[i]-b->words.w64[i]-carry;
+		carry = (a->words.w64[i] < b->words.w64[i]);
+	}
+
+	return y;
+}
+/**
 * Pure C implementation of 256 bit unsigned multiply
 **/
 struct unsigned256 _c_umul256(struct unsigned256* a, struct unsigned256* b){

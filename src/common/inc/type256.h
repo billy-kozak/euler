@@ -17,5 +17,6 @@ struct unsigned256{
 *                            FUNCTION DECLARATIONS                            *
 ******************************************************************************/
 struct unsigned256 _c_uadd256(struct unsigned256* a, struct unsigned256* b);
+struct unsigned256 _c_usub256(struct unsigned256* a, struct unsigned256* b);
 struct unsigned256 _c_umul256(struct unsigned256* a, struct unsigned256* b);
 #endif //_TYPE_256_H_
