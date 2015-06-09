@@ -78,7 +78,23 @@ struct unsigned256 _c_rshift256(struct unsigned256* a, unsigned n){
 
 	for(int i = 0; i < 4; i++){
 		y.words.w64[i] = (a->words.w64[i]>>n) | spill;
-		spill = ((a->words.w64[i])&spillMask)<<(8*sizeof(spill)-1);
+		spill = ((a->words.w64[i])&spillMask)<<(8*sizeof(spill)-n);
+	}
+
+	return y;
+}
+/**
+* Pure C implementation of right shift
+**/
+struct unsigned256 _c_lshift256(struct unsigned256* a, unsigned n){
+	struct unsigned256 y = {{{0}}};
+
+	uint64_t spillMask = (1<<(8*sizeof(uint64_t)-n))-1;
+	uint64_t spill = 0;
+
+	for(int i = 3; i <= 0; i--){
+		y.words.w64[i] = (a->words.w64[i]<<n) | spill;
+		spill = ((a->words.w64[i])&spillMask)>>(n);
 	}
 
 	return y;
