@@ -27,6 +27,10 @@ static bool testCMul(
 		struct unsigned256 a,struct unsigned256 b,
 		struct unsigned256 exp
 	);
+static bool testCDiv(
+		struct unsigned256 a,struct unsigned256 b,
+		struct unsigned256 exp
+	);
 /******************************************************************************
 *                                    TESTS                                    *
 ******************************************************************************/
@@ -71,6 +75,17 @@ static bool testCMul(
 		struct unsigned256 exp
 	){
 	struct unsigned256 answer = _c_umul256(&a,&b);
+	return memcmp(&answer,&exp,sizeof(struct unsigned256)) == 0;
+}
+/**
+* Used to test adding with pure C implementation
+**/
+static bool testCDiv(
+		struct unsigned256 n,struct unsigned256 d,
+		struct unsigned256 exp
+	){
+	struct unsigned256 answer = _c_udiv256(&n,&d);
+
 	return memcmp(&answer,&exp,sizeof(struct unsigned256)) == 0;
 }
 /**
@@ -153,6 +168,26 @@ int main(int argc, char** argv){
 	 	 	 		0x539cb0f522c4b7e9ULL,
 	 	 	 		0xf280457dcabf85f5ULL,
 	 	 	 		0xcd0f4740c5377104ULL
+	 	 	 	)
+	 	 	 )
+	 	 );
+	  MSTF_RUN(
+	 		"Failed to divide large random numbers",
+	 	 	testCDiv(
+	 	 	 	build256(
+	 	 	 		0x4a45a555f1bb654dULL,
+	 	 	 		0x158e4d4c026ad335ULL
+	 	 	 		,0x2ae3008d92cdb1aeULL,
+	 	 	 		0x686cb016eba70c39ULL
+	 	 	 	),
+	 	 	 	build256(
+	 	 	 		0x3b30cec0900dfdfULL,
+	 	 	 		0x94e2fca59b235d11ULL,
+	 	 	 		0xa13675879cf04827ULL,
+	 	 	 		0x29b6c0938113930eULL
+	 	 	 	),
+	 	 	 	build256(
+	 	 	 		0x0ULL,0x0ULL,0x0ULL,0x14ULL
 	 	 	 	)
 	 	 	 )
 	 	 );

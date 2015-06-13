@@ -6,11 +6,20 @@
 ******************************************************************************/
 #include "type256.h"
 #include <stdbool.h>
+#include <stdio.h>
 /******************************************************************************
 *                                   DEFINES                                   *
 ******************************************************************************/
 #define MASK_32LOW  (0x00000000FFFFFFFFULL)
 #define MASK_32HIGH (0xFFFFFFFF00000000ULL)
+
+#define type256dbgPrint(a) \
+	printf( \
+		"0x%016lx%016lx%016lx%016lx", \
+		(a)->words.w64[3],(a)->words.w64[2], \
+		(a)->words.w64[1],(a)->words.w64[0] \
+	)
+
 /******************************************************************************
 *                             FUNCTION PROTOTYPES                             *
 ******************************************************************************/
@@ -24,17 +33,19 @@ static bool type256bitGet(struct unsigned256* a, unsigned n);
 **/
 static void type256bitSet(struct unsigned256* a, unsigned n, bool val){
 	if(val){
-		a->words.w64[n>>5] |= 1<<(n&0x1F);
+		a->words.w64[n>>6] |= 1<<(n&0x3F);
 	}
 	else{
-		a->words.w64[n>>5] &= ~(1<<(n&0x1F));
+		a->words.w64[n>>6] &= ~(1<<(n&0x3F));
 	}
 }
 /**
 *
 **/
 static bool type256bitGet(struct unsigned256* a, unsigned n){
-	return !! ( a->words.w64[n>>5]&(1<<(n&0x1F)) );
+	unsigned ind = (n>>6);
+
+	return !! ( a->words.w64[ind]&(1ULL<<(n&0x3F)) );
 }
 /**
 *
@@ -110,12 +121,13 @@ struct unsigned256 _c_umul256(struct unsigned256* a, struct unsigned256* b){
 struct unsigned256 _c_rshift256(struct unsigned256* a, unsigned n){
 	struct unsigned256 y = {{{0}}};
 
-	uint64_t spillMask = (1<<n)-1;
+	uint64_t spillShift = 8*sizeof(uint64_t)-n;
+	uint64_t spillMask = (1ULL<<n)-1ULL;
 	uint64_t spill = 0;
 
-	for(int i = 0; i < 4; i++){
+	for(int i = 3; i >= 0; i--){
 		y.words.w64[i] = (a->words.w64[i]>>n) | spill;
-		spill = ((a->words.w64[i])&spillMask)<<(8*sizeof(spill)-n);
+		spill = ((a->words.w64[i])&spillMask)<<(spillShift);
 	}
 
 	return y;
@@ -126,12 +138,13 @@ struct unsigned256 _c_rshift256(struct unsigned256* a, unsigned n){
 struct unsigned256 _c_lshift256(struct unsigned256* a, unsigned n){
 	struct unsigned256 y = {{{0}}};
 
-	uint64_t spillMask = (1<<(8*sizeof(uint64_t)-n))-1;
+	uint64_t spillShift = 8*sizeof(uint64_t)-n;
+	uint64_t spillMask = ~((1ULL<<(spillShift))-1ULL);
 	uint64_t spill = 0;
 
-	for(int i = 3; i <= 0; i--){
+	for(int i = 0; i < 4; i++){
 		y.words.w64[i] = (a->words.w64[i]<<n) | spill;
-		spill = ((a->words.w64[i])&spillMask)>>(n);
+		spill = ((a->words.w64[i])&spillMask)>>(spillShift);
 	}
 
 	return y;
@@ -143,9 +156,10 @@ struct unsigned256 _c_udiv256(struct unsigned256* n, struct unsigned256* d){
 	struct unsigned256 q = {{{0}}};
 	struct unsigned256 r = {{{0}}};
 
-	for(int i = 127; i >= 0; i--){
+	for(int i = 255; i >= 0; i--){
 		r = _c_lshift256(&r,1);
-		type256bitSet(&r,i,type256bitGet(d,i));
+
+		type256bitSet(&r,0,type256bitGet(n,i));
 
 		if(type256cmp(&r,d) >= 0){
 			r = _c_usub256(&r,d);
