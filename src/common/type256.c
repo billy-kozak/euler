@@ -5,8 +5,11 @@
 *                                  INCLUDES                                   *
 ******************************************************************************/
 #include "type256.h"
+#include <string.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <ctype.h>
+#include <errno.h>
 /******************************************************************************
 *                                   DEFINES                                   *
 ******************************************************************************/
@@ -45,6 +48,19 @@ static bool type256bitGet(struct unsigned256* a, unsigned n){
 	unsigned ind = (n>>6);
 
 	return !! ( a->words.w64[ind]&(1ULL<<(n&0x3F)) );
+}
+/**
+* Makes a 256 bit type from individual 64 bit words
+**/
+struct unsigned256 build256(
+		uint64_t a,uint64_t b,uint64_t c,uint64_t d
+	){
+	struct unsigned256 y;
+	y.words.w64[3] = a;
+	y.words.w64[2] = b;
+	y.words.w64[1] = c;
+	y.words.w64[0] = d;
+	return y;
 }
 /**
 * Compares numbers
@@ -169,4 +185,45 @@ struct unsigned256 _c_udiv256(struct unsigned256* n, struct unsigned256* d){
 	}
 
 	return q;
+}
+/**
+* Converts a string to 256 bit num
+**/
+int strToU256(const char*nptr,char** endptr,struct unsigned256* y){
+
+	struct unsigned256 output = {{{0}}};
+	struct unsigned256 tenPow = build256(0,0,0,1);
+	int firstD;
+	int lastD;
+
+	for(firstD = 0; isspace(nptr[firstD]); firstD++);
+	if(!nptr[firstD]){
+		//error, string is invalid
+		return 1;
+	}
+
+	if(!isdigit(firstD)){
+		//error, string is invalid
+		return 1;
+	}
+
+	for(lastD = firstD; isdigit(nptr[lastD+1]); lastD++);
+	if(nptr[lastD+1] && !isspace(nptr[lastD+1])){
+		//error, string is invalid
+		return 1;
+	}
+
+	memset(y,0,sizeof(*y));
+
+	for(int i = lastD; i >= firstD; i--){
+		struct unsigned256 digit = build256(0,0,0,nptr[i]-'0');
+		struct unsigned256 digVal = umul256(&tenPow,&digit);
+
+		output = uadd256(&output,&digVal);
+	}
+
+	*endptr = (char*)(&nptr[lastD+1]);
+	memcpy(y,&output,sizeof(output));
+
+	return 0;
 }

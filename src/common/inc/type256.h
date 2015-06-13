@@ -114,6 +114,9 @@ static inline struct unsigned256 _x64_usub256(
 
 /* public API functions */
 int ucmp256(struct unsigned256* a,struct unsigned256* b);
+struct unsigned256 build256(
+		uint64_t a,uint64_t b,uint64_t c,uint64_t d
+	);
 
 /* Pure C implementation functions */
 struct unsigned256 _c_rshift256(struct unsigned256* a, unsigned n);

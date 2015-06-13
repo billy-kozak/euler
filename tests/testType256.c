@@ -12,9 +12,6 @@
 /******************************************************************************
 *                             FUNCTION PROTOTYPES                             *
 ******************************************************************************/
-static struct unsigned256 build256(
-		uint64_t a,uint64_t b,uint64_t c,uint64_t d
-	);
 static bool testAdd(
 		struct unsigned256 a,struct unsigned256 b,
 		struct unsigned256 exp
@@ -34,19 +31,6 @@ static bool testCDiv(
 /******************************************************************************
 *                                    TESTS                                    *
 ******************************************************************************/
-/**
-* Makes a 256 bit type from individual 64 bit words
-**/
-static struct unsigned256 build256(
-		uint64_t a,uint64_t b,uint64_t c,uint64_t d
-	){
-	struct unsigned256 y;
-	y.words.w64[3] = a;
-	y.words.w64[2] = b;
-	y.words.w64[1] = c;
-	y.words.w64[0] = d;
-	return y;
-}
 /**
 * Used to test adding of unsigned 256 types
 **/
