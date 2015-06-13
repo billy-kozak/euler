@@ -25,15 +25,15 @@
 /******************************************************************************
 *                             FUNCTION PROTOTYPES                             *
 ******************************************************************************/
-static void type256bitSet(struct unsigned256* a, unsigned n, bool val);
-static bool type256bitGet(struct unsigned256* a, unsigned n);
+static void type256bitSet(struct u256* a, unsigned n, bool val);
+static bool type256bitGet(struct u256* a, unsigned n);
 /******************************************************************************
 *                            FUNCTION DEFINITIONS                             *
 ******************************************************************************/
 /**
 * Sets bit to some value
 **/
-static void type256bitSet(struct unsigned256* a, unsigned n, bool val){
+static void type256bitSet(struct u256* a, unsigned n, bool val){
 	if(val){
 		a->words.w64[n>>6] |= 1<<(n&0x3F);
 	}
@@ -44,7 +44,7 @@ static void type256bitSet(struct unsigned256* a, unsigned n, bool val){
 /**
 * Returns value of nth bit
 **/
-static bool type256bitGet(struct unsigned256* a, unsigned n){
+static bool type256bitGet(struct u256* a, unsigned n){
 	unsigned ind = (n>>6);
 
 	return !! ( a->words.w64[ind]&(1ULL<<(n&0x3F)) );
@@ -52,10 +52,8 @@ static bool type256bitGet(struct unsigned256* a, unsigned n){
 /**
 * Makes a 256 bit type from individual 64 bit words
 **/
-struct unsigned256 build256(
-		uint64_t a,uint64_t b,uint64_t c,uint64_t d
-	){
-	struct unsigned256 y;
+struct u256 build256(uint64_t a,uint64_t b,uint64_t c,uint64_t d){
+	struct u256 y;
 	y.words.w64[3] = a;
 	y.words.w64[2] = b;
 	y.words.w64[1] = c;
@@ -67,7 +65,7 @@ struct unsigned256 build256(
 *
 * returns 0 if equal, 1 if a>b and -1 if b>a
 **/
-int ucmp256(struct unsigned256* a,struct unsigned256* b){
+int ucmp256(struct u256* a,struct u256* b){
 	for( int i = 3; i >= 0; i-- ){
 		if(a->words.w64[i] > b->words.w64[i]){
 			return 1;
@@ -82,9 +80,9 @@ int ucmp256(struct unsigned256* a,struct unsigned256* b){
 /**
 * Pure C implementation of 256 bit type unsigned addition
 **/
-struct unsigned256 _c_uadd256(struct unsigned256* a, struct unsigned256* b){
+struct u256 _c_uadd256(struct u256* a, struct u256* b){
 
-	struct unsigned256 y;
+	struct u256 y;
 	uint64_t carry = 0;
 
 	for(int i = 0; i < 4; i++){
@@ -97,9 +95,9 @@ struct unsigned256 _c_uadd256(struct unsigned256* a, struct unsigned256* b){
 /**
 * Pure C implementation of 256 bit type unsigned subtraction
 **/
-struct unsigned256 _c_usub256(struct unsigned256* a, struct unsigned256* b){
+struct u256 _c_usub256(struct u256* a, struct u256* b){
 
-	struct unsigned256 y;
+	struct u256 y;
 	uint64_t carry = 0;
 
 	for(int i = 0; i < 4; i++){
@@ -112,9 +110,9 @@ struct unsigned256 _c_usub256(struct unsigned256* a, struct unsigned256* b){
 /**
 * Pure C implementation of 256 bit unsigned multiply
 **/
-struct unsigned256 _c_umul256(struct unsigned256* a, struct unsigned256* b){
+struct u256 _c_umul256(struct u256* a, struct u256* b){
 
-	struct unsigned256 y = {{{0}}};
+	struct u256 y = {{{0}}};
 
 	for(int i = 0; i < 8; i++){
 		uint64_t carry = 0;
@@ -135,8 +133,8 @@ struct unsigned256 _c_umul256(struct unsigned256* a, struct unsigned256* b){
 /**
 * Pure C implementation of right shift
 **/
-struct unsigned256 _c_rshift256(struct unsigned256* a, unsigned n){
-	struct unsigned256 y = {{{0}}};
+struct u256 _c_rshift256(struct u256* a, unsigned n){
+	struct u256 y = {{{0}}};
 
 	uint64_t spillShift = 8*sizeof(uint64_t)-n;
 	uint64_t spillMask = (1ULL<<n)-1ULL;
@@ -152,8 +150,8 @@ struct unsigned256 _c_rshift256(struct unsigned256* a, unsigned n){
 /**
 * Pure C implementation of right shift
 **/
-struct unsigned256 _c_lshift256(struct unsigned256* a, unsigned n){
-	struct unsigned256 y = {{{0}}};
+struct u256 _c_lshift256(struct u256* a, unsigned n){
+	struct u256 y = {{{0}}};
 
 	uint64_t spillShift = 8*sizeof(uint64_t)-n;
 	uint64_t spillMask = ~((1ULL<<(spillShift))-1ULL);
@@ -169,9 +167,9 @@ struct unsigned256 _c_lshift256(struct unsigned256* a, unsigned n){
 /**
 * Pure C imlementation of unsigned division
 **/
-struct unsigned256 _c_udiv256(struct unsigned256* n, struct unsigned256* d){
-	struct unsigned256 q = {{{0}}};
-	struct unsigned256 r = {{{0}}};
+struct u256 _c_udiv256(struct u256* n, struct u256* d){
+	struct u256 q = {{{0}}};
+	struct u256 r = {{{0}}};
 
 	for(int i = 255; i >= 0; i--){
 		r = _c_lshift256(&r,1);
@@ -189,10 +187,10 @@ struct unsigned256 _c_udiv256(struct unsigned256* n, struct unsigned256* d){
 /**
 * Converts a string to 256 bit num
 **/
-int strToU256(const char*nptr,char** endptr,struct unsigned256* y){
+int strToU256(const char*nptr,char** endptr,struct u256* y){
 
-	struct unsigned256 output = {{{0}}};
-	struct unsigned256 tenPow = build256(0,0,0,1);
+	struct u256 output = {{{0}}};
+	struct u256 tenPow = build256(0,0,0,1);
 	int firstD;
 	int lastD;
 
@@ -216,8 +214,8 @@ int strToU256(const char*nptr,char** endptr,struct unsigned256* y){
 	memset(y,0,sizeof(*y));
 
 	for(int i = lastD; i >= firstD; i--){
-		struct unsigned256 digit = build256(0,0,0,nptr[i]-'0');
-		struct unsigned256 digVal = umul256(&tenPow,&digit);
+		struct u256 digit = build256(0,0,0,nptr[i]-'0');
+		struct u256 digVal = umul256(&tenPow,&digit);
 
 		output = uadd256(&output,&digVal);
 	}

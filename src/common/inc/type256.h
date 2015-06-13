@@ -7,7 +7,7 @@
 /******************************************************************************
 *                                    TYPES                                    *
 ******************************************************************************/
-struct unsigned256{
+struct u256{
 	union{
 		uint64_t w64[4];
 		uint32_t w32[8];
@@ -41,10 +41,8 @@ struct unsigned256{
 *                              INLINE FUNCTIONS                               *
 ******************************************************************************/
 #ifdef _GNU_X86_64_
-static inline struct unsigned256 _x64_uadd256(
-		struct unsigned256* a, struct unsigned256* b
-	){
-	struct unsigned256 y;
+static inline struct u256 _x64_uadd256(struct u256* a, struct u256* b){
+	struct u256 y;
 
 	y.words.w64[0] = a->words.w64[0];
 	y.words.w64[1] = a->words.w64[1];
@@ -74,10 +72,8 @@ static inline struct unsigned256 _x64_uadd256(
 
 	return y;
 }
-static inline struct unsigned256 _x64_usub256(
-		struct unsigned256* a, struct unsigned256* b
-	){
-	struct unsigned256 y;
+static inline struct u256 _x64_usub256(struct u256* a, struct u256* b){
+	struct u256 y;
 
 	y.words.w64[0] = a->words.w64[0];
 	y.words.w64[1] = a->words.w64[1];
@@ -113,16 +109,14 @@ static inline struct unsigned256 _x64_usub256(
 ******************************************************************************/
 
 /* public API functions */
-int ucmp256(struct unsigned256* a,struct unsigned256* b);
-struct unsigned256 build256(
-		uint64_t a,uint64_t b,uint64_t c,uint64_t d
-	);
+int ucmp256(struct u256* a,struct u256* b);
+struct u256 build256(uint64_t a,uint64_t b,uint64_t c,uint64_t d);
 
 /* Pure C implementation functions */
-struct unsigned256 _c_rshift256(struct unsigned256* a, unsigned n);
-struct unsigned256 _c_lshift256(struct unsigned256* a, unsigned n);
-struct unsigned256 _c_uadd256(struct unsigned256* a, struct unsigned256* b);
-struct unsigned256 _c_usub256(struct unsigned256* a, struct unsigned256* b);
-struct unsigned256 _c_umul256(struct unsigned256* a, struct unsigned256* b);
-struct unsigned256 _c_udiv256(struct unsigned256* n, struct unsigned256* d);
+struct u256 _c_rshift256(struct u256* a, unsigned n);
+struct u256 _c_lshift256(struct u256* a, unsigned n);
+struct u256 _c_uadd256(struct u256* a, struct u256* b);
+struct u256 _c_usub256(struct u256* a, struct u256* b);
+struct u256 _c_umul256(struct u256* a, struct u256* b);
+struct u256 _c_udiv256(struct u256* n, struct u256* d);
 #endif //_TYPE_256_H_

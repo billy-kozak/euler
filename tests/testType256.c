@@ -12,34 +12,19 @@
 /******************************************************************************
 *                             FUNCTION PROTOTYPES                             *
 ******************************************************************************/
-static bool testAdd(
-		struct unsigned256 a,struct unsigned256 b,
-		struct unsigned256 exp
-	);
-static bool testSub(
-		struct unsigned256 a,struct unsigned256 b,
-		struct unsigned256 exp
-	);
-static bool testCMul(
-		struct unsigned256 a,struct unsigned256 b,
-		struct unsigned256 exp
-	);
-static bool testCDiv(
-		struct unsigned256 a,struct unsigned256 b,
-		struct unsigned256 exp
-	);
+static bool testAdd(struct u256 a,struct u256 b,struct u256 exp);
+static bool testSub(struct u256 a,struct u256 b,struct u256 exp);
+static bool testCMul(struct u256 a,struct u256 b,struct u256 exp);
+static bool testCDiv(struct u256 a,struct u256 b,struct u256 exp);
 /******************************************************************************
 *                                    TESTS                                    *
 ******************************************************************************/
 /**
 * Used to test adding of unsigned 256 types
 **/
-static bool testAdd(
-		struct unsigned256 a,struct unsigned256 b,
-		struct unsigned256 exp
-	){
-	struct unsigned256 answer1 = _c_uadd256(&a,&b);
-	struct unsigned256 answer2 = uadd256(&a,&b);
+static bool testAdd(struct u256 a,struct u256 b,struct u256 exp){
+	struct u256 answer1 = _c_uadd256(&a,&b);
+	struct u256 answer2 = uadd256(&a,&b);
 
 	if( ucmp256(&answer1,&exp) || ucmp256(&answer2,&exp) ){
 		return false;
@@ -49,12 +34,9 @@ static bool testAdd(
 /**
 * Used to test adding of unsigned 256 types
 **/
-static bool testSub(
-		struct unsigned256 a,struct unsigned256 b,
-		struct unsigned256 exp
-	){
-	struct unsigned256 answer1 = _c_usub256(&a,&b);
-	struct unsigned256 answer2 = usub256(&a,&b);
+static bool testSub(struct u256 a,struct u256 b,struct u256 exp){
+	struct u256 answer1 = _c_usub256(&a,&b);
+	struct u256 answer2 = usub256(&a,&b);
 
 	if( ucmp256(&answer1,&exp) || ucmp256(&answer2,&exp) ){
 		return false;
@@ -65,23 +47,17 @@ static bool testSub(
 /**
 * Used to test adding with pure C implementation
 **/
-static bool testCMul(
-		struct unsigned256 a,struct unsigned256 b,
-		struct unsigned256 exp
-	){
-	struct unsigned256 answer = _c_umul256(&a,&b);
-	return memcmp(&answer,&exp,sizeof(struct unsigned256)) == 0;
+static bool testCMul(struct u256 a,struct u256 b,struct u256 exp){
+	struct u256 answer = _c_umul256(&a,&b);
+	return memcmp(&answer,&exp,sizeof(struct u256)) == 0;
 }
 /**
 * Used to test adding with pure C implementation
 **/
-static bool testCDiv(
-		struct unsigned256 n,struct unsigned256 d,
-		struct unsigned256 exp
-	){
-	struct unsigned256 answer = _c_udiv256(&n,&d);
+static bool testCDiv(struct u256 n,struct u256 d,struct u256 exp){
+	struct u256 answer = _c_udiv256(&n,&d);
 
-	return memcmp(&answer,&exp,sizeof(struct unsigned256)) == 0;
+	return memcmp(&answer,&exp,sizeof(struct u256)) == 0;
 }
 /**
 * Uses trial divide gen functions to get nth prime
