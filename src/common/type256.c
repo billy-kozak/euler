@@ -19,7 +19,6 @@
 		(a)->words.w64[3],(a)->words.w64[2], \
 		(a)->words.w64[1],(a)->words.w64[0] \
 	)
-
 /******************************************************************************
 *                             FUNCTION PROTOTYPES                             *
 ******************************************************************************/
@@ -40,7 +39,7 @@ static void type256bitSet(struct unsigned256* a, unsigned n, bool val){
 	}
 }
 /**
-*
+* Returns value of nth bit
 **/
 static bool type256bitGet(struct unsigned256* a, unsigned n){
 	unsigned ind = (n>>6);
@@ -48,7 +47,9 @@ static bool type256bitGet(struct unsigned256* a, unsigned n){
 	return !! ( a->words.w64[ind]&(1ULL<<(n&0x3F)) );
 }
 /**
+* Compares numbers
 *
+* returns 0 if equal, 1 if a>b and -1 if b>a
 **/
 int type256cmp(struct unsigned256* a,struct unsigned256* b){
 	for( int i = 3; i >= 0; i-- ){
@@ -150,7 +151,7 @@ struct unsigned256 _c_lshift256(struct unsigned256* a, unsigned n){
 	return y;
 }
 /**
-*
+* Pure C imlementation of unsigned division
 **/
 struct unsigned256 _c_udiv256(struct unsigned256* n, struct unsigned256* d){
 	struct unsigned256 q = {{{0}}};
@@ -162,7 +163,7 @@ struct unsigned256 _c_udiv256(struct unsigned256* n, struct unsigned256* d){
 		type256bitSet(&r,0,type256bitGet(n,i));
 
 		if(type256cmp(&r,d) >= 0){
-			r = _c_usub256(&r,d);
+			r = usub256(&r,d);
 			type256bitSet(&q,i,1);
 		}
 	}
