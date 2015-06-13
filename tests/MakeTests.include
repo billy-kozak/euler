@@ -60,7 +60,7 @@ runtests: tests
 
 $(TEST_DEPS): $(TEST_BUILD_DIR)/%.d : $(TEST_SRC_DIR)/%.c
 	$(CC) $(CFLAGS) $(TEST_INCLUDES) -M -MT \
-	"$(TEST_BIN_DIR)/$(notdir $(basename $@)) $@" $< > $@
+	"$(TEST_BIN_DIR)/$(notdir $(basename $@)) $@ $(basename $@).s" $< > $@
 
 $(TEST_BINARIES): $(TEST_BIN_DIR)/% : $(TEST_SRC_DIR)/%.c
 	$(CC) $(CFLAGS) $< $(TEST_LIBS) -o $@
@@ -68,7 +68,7 @@ $(TEST_BINARIES): $(TEST_BIN_DIR)/% : $(TEST_SRC_DIR)/%.c
 $(TEST_ASMS): $(TEST_BUILD_DIR)/%.s : $(TEST_SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -fverbose-asm -S $< $(TEST_LIBS) -o $@
 
-ifneq (,$(filter $(MAKECMDGOALS), tests runtests))
+ifneq (,$(filter $(MAKECMDGOALS), tests runtests testsASM))
 
 #next two conditonals prevent make from running on dry run or when
 #invoked for tab-completion
