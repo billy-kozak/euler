@@ -70,7 +70,7 @@ static bool testSub(
 		struct unsigned256 exp
 	){
 	struct unsigned256 answer1 = _c_usub256(&a,&b);
-	struct unsigned256 answer2 = _c_usub256(&a,&b);
+	struct unsigned256 answer2 = usub256(&a,&b);
 
 	if( ucmp256(&answer1,&exp) || ucmp256(&answer2,&exp) ){
 		return false;

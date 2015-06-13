@@ -85,10 +85,10 @@ static inline struct unsigned256 _x64_usub256(
 	y.words.w64[3] = a->words.w64[3];
 
 	__asm(
-			"sub %7, %3\n\t"
-			"sbb %6, %2\n\t"
+			"sub %4, %0\n\t"
 			"sbb %5, %1\n\t"
-			"sbb %4, %0\n\t"
+			"sbb %6, %2\n\t"
+			"sbb %7, %3\n\t"
 
 			: /*        0                    1        */
 			  "=r"(y.words.w64[0]),"=r"(y.words.w64[1]),
