@@ -15,7 +15,7 @@
 static struct unsigned256 build256(
 		uint64_t a,uint64_t b,uint64_t c,uint64_t d
 	);
-static bool testCAdd(
+static bool testAdd(
 		struct unsigned256 a,struct unsigned256 b,
 		struct unsigned256 exp
 	);
@@ -48,14 +48,19 @@ static struct unsigned256 build256(
 	return y;
 }
 /**
-* Used to test adding with pure C implementation
+* Used to test adding of unsigned 256 types
 **/
-static bool testCAdd(
+static bool testAdd(
 		struct unsigned256 a,struct unsigned256 b,
 		struct unsigned256 exp
 	){
-	struct unsigned256 answer = _c_uadd256(&a,&b);
-	return memcmp(&answer,&exp,sizeof(struct unsigned256)) == 0;
+	struct unsigned256 answer1 = _c_uadd256(&a,&b);
+	struct unsigned256 answer2 = uadd256(&a,&b);
+
+	if( ucmp256(&answer1,&exp) || ucmp256(&answer2,&exp) ){
+		return false;
+	}
+	return true;
 }
 /**
 * Used to test adding with pure C implementation
@@ -98,7 +103,7 @@ int main(int argc, char** argv){
 	 MSTF_START();
 	 MSTF_RUN(
 	 	 	"Failed to add numbers 0xFF and 0xFF",
-	 	 	testCAdd(
+	 	 	testAdd(
 	 	 	 	build256(0,0,0,0xFF),build256(0,0,0,0xFF),
 	 	 	 	build256(0,0,0,0x1FE)
 	 	 	 )
@@ -106,7 +111,7 @@ int main(int argc, char** argv){
 
 	 MSTF_RUN(
 	 		"Failed to add large random numbers",
-	 	 	testCAdd(
+	 	 	testAdd(
 	 	 	 	build256(
 	 	 	 		0x013770a75bd398e3ULL,
 	 	 	 		0x4ae68eb17d2d8b7eULL,

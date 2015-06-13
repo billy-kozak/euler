@@ -70,7 +70,7 @@ static inline struct unsigned256 _x64_uadd256(
 ******************************************************************************/
 
 /* public API functions */
-int type256cmp(struct unsigned256* a,struct unsigned256* b);
+int ucmp256(struct unsigned256* a,struct unsigned256* b);
 
 /* Pure C implementation functions */
 struct unsigned256 _c_rshift256(struct unsigned256* a, unsigned n);

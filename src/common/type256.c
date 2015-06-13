@@ -51,7 +51,7 @@ static bool type256bitGet(struct unsigned256* a, unsigned n){
 *
 * returns 0 if equal, 1 if a>b and -1 if b>a
 **/
-int type256cmp(struct unsigned256* a,struct unsigned256* b){
+int ucmp256(struct unsigned256* a,struct unsigned256* b){
 	for( int i = 3; i >= 0; i-- ){
 		if(a->words.w64[i] > b->words.w64[i]){
 			return 1;
@@ -162,7 +162,7 @@ struct unsigned256 _c_udiv256(struct unsigned256* n, struct unsigned256* d){
 
 		type256bitSet(&r,0,type256bitGet(n,i));
 
-		if(type256cmp(&r,d) >= 0){
+		if(ucmp256(&r,d) >= 0){
 			r = usub256(&r,d);
 			type256bitSet(&q,i,1);
 		}
