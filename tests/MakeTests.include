@@ -22,6 +22,7 @@ TEST_PATHS +=  $(foreach dir, $(TEST_SRC_DIR),$(wildcard $(dir)/*.c))
 TEST_FILES +=  $(foreach f, $(TEST_PATHS),$(notdir $(f)))
 TEST_BINARIES +=  $(foreach f,$(TEST_FILES),$(TEST_BIN_DIR)/$(basename $(f)))
 TEST_DEPS +=  $(foreach f,$(TEST_FILES),$(TEST_BUILD_DIR)/$(basename $(f)).d)
+TEST_ASMS +=  $(foreach f,$(TEST_FILES),$(TEST_BUILD_DIR)/$(basename $(f)).s)
 
 TEST_INCLUDES += $(foreach f,$(TEST_INC_DIRS),-I$(f))
 TEST_INCLUDES += -I$(SRC_TREE)
@@ -48,6 +49,11 @@ tests: CFLAGS+= -DDEBUG=1
 tests: CFLAGS+= -march=native -Os -flto
 tests: $(TEST_BINARIES)
 
+testsASM: CFLAGS+= $(TEST_INCLUDES)
+testsASM: CFLAGS+= -DDEBUG=1 -march=native -Os -flto
+testsASM: $(TEST_ASMS)
+
+
 runtests: tests
 	@echo "Running all tests!"
 	@./scripts/runTests $(TEST_BINARIES)
@@ -58,6 +64,9 @@ $(TEST_DEPS): $(TEST_BUILD_DIR)/%.d : $(TEST_SRC_DIR)/%.c
 
 $(TEST_BINARIES): $(TEST_BIN_DIR)/% : $(TEST_SRC_DIR)/%.c
 	$(CC) $(CFLAGS) $< $(TEST_LIBS) -o $@
+
+$(TEST_ASMS): $(TEST_BUILD_DIR)/%.s : $(TEST_SRC_DIR)/%.c
+	$(CC) $(CFLAGS) -fverbose-asm -S $< $(TEST_LIBS) -o $@
 
 ifneq (,$(filter $(MAKECMDGOALS), tests runtests))
 

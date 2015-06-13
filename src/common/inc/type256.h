@@ -21,8 +21,18 @@ struct unsigned256{
 #endif
 
 /* public API functions */
+#ifndef _GNU_X86_64_
 #define uadd256   _c_uadd256
-#define usub256   _c_usub256
+#else
+#define uadd256   _x64_uadd256
+#endif
+
+#ifndef _GNU_X86_64_
+#define  usub256  _c_usub256
+#else
+#define  usub256  _x64_usub256
+#endif
+
 #define umul256   _c_umul256
 #define udiv256   _c_udiv256
 #define lshift256 _c_lshift256
@@ -42,10 +52,10 @@ static inline struct unsigned256 _x64_uadd256(
 	y.words.w64[3] = a->words.w64[3];
 
 	__asm(
-			"add %0 %4\n\t"
-			"adc %1 %5\n\t"
-			"adc %2 %6\n\t"
-			"adc %3 %7\n\t"
+			"add %4, %0\n\t"
+			"adc %5, %1\n\t"
+			"adc %6, %2\n\t"
+			"adc %7, %3\n\t"
 
 			: /*        0                    1        */
 			  "=r"(y.words.w64[0]),"=r"(y.words.w64[1]),
@@ -53,9 +63,42 @@ static inline struct unsigned256 _x64_uadd256(
 			  "=r"(y.words.w64[2]),"=r"(y.words.w64[3])
 
 			: /*        4                    5        */
-			  "g"(b->words.w64[0]),"g"(b->words.w64[1]),
+			  "m"(b->words.w64[0]),"m"(b->words.w64[1]),
 			  /*        6                    7        */
-			  "g"(b->words.w64[2]),"g"(b->words.w64[3]),
+			  "m"(b->words.w64[2]),"m"(b->words.w64[3]),
+
+			  "0"(y.words.w64[0]),"1"(y.words.w64[1]),
+			  "2"(y.words.w64[2]),"3"(y.words.w64[3])
+			:
+		);
+
+	return y;
+}
+static inline struct unsigned256 _x64_usub256(
+		struct unsigned256* a, struct unsigned256* b
+	){
+	struct unsigned256 y;
+
+	y.words.w64[0] = a->words.w64[0];
+	y.words.w64[1] = a->words.w64[1];
+	y.words.w64[2] = a->words.w64[2];
+	y.words.w64[3] = a->words.w64[3];
+
+	__asm(
+			"sub %7, %3\n\t"
+			"sbb %6, %2\n\t"
+			"sbb %5, %1\n\t"
+			"sbb %4, %0\n\t"
+
+			: /*        0                    1        */
+			  "=r"(y.words.w64[0]),"=r"(y.words.w64[1]),
+			  /*        2                    3        */
+			  "=r"(y.words.w64[2]),"=r"(y.words.w64[3])
+
+			: /*        4                    5        */
+			  "m"(b->words.w64[0]),"m"(b->words.w64[1]),
+			  /*        6                    7        */
+			  "m"(b->words.w64[2]),"m"(b->words.w64[3]),
 
 			  "0"(y.words.w64[0]),"1"(y.words.w64[1]),
 			  "2"(y.words.w64[2]),"3"(y.words.w64[3])

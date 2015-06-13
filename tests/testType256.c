@@ -19,7 +19,7 @@ static bool testAdd(
 		struct unsigned256 a,struct unsigned256 b,
 		struct unsigned256 exp
 	);
-static bool testCSub(
+static bool testSub(
 		struct unsigned256 a,struct unsigned256 b,
 		struct unsigned256 exp
 	);
@@ -63,14 +63,20 @@ static bool testAdd(
 	return true;
 }
 /**
-* Used to test adding with pure C implementation
+* Used to test adding of unsigned 256 types
 **/
-static bool testCSub(
+static bool testSub(
 		struct unsigned256 a,struct unsigned256 b,
 		struct unsigned256 exp
 	){
-	struct unsigned256 answer = _c_usub256(&a,&b);
-	return memcmp(&answer,&exp,sizeof(struct unsigned256)) == 0;
+	struct unsigned256 answer1 = _c_usub256(&a,&b);
+	struct unsigned256 answer2 = _c_usub256(&a,&b);
+
+	if( ucmp256(&answer1,&exp) || ucmp256(&answer2,&exp) ){
+		return false;
+	}
+
+	return true;
 }
 /**
 * Used to test adding with pure C implementation
@@ -134,7 +140,7 @@ int main(int argc, char** argv){
 	 	 );
 	 MSTF_RUN(
 	 		"Failed to subtract large random numbers",
-	 	 	testCSub(
+	 	 	testSub(
 	 	 	 	build256(
 	 	 	 		0x1dd3a6df243e5a3ULL,
 	 	 	 		0xfc2f6fdadaa91281ULL,
