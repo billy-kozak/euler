@@ -49,6 +49,7 @@ static bool testSub(struct u256 a,struct u256 b,struct u256 exp){
 **/
 static bool testCMul(struct u256 a,struct u256 b,struct u256 exp){
 	struct u256 answer = _c_umul256(&a,&b);
+
 	return memcmp(&answer,&exp,sizeof(struct u256)) == 0;
 }
 /**

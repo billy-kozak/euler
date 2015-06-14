@@ -37,7 +37,7 @@ static bool type256NonZero(struct u256* a);
 * Returns true if struct is equal to zero
 **/
 static bool type256NonZero(struct u256* a){
-	uint64_t* words = &(a->words.w64);
+	uint64_t* words = a->words.w64;
 	return words[3]||words[2]||words[1]||words[0];
 }
 /**
@@ -297,17 +297,17 @@ char* u256ToStr_dec(struct u256* n){
 		return NULL;
 	}
 
-	memcpy(&(acc.q),n,sizeof(tmp));
+	memcpy(&(acc.q),n,sizeof(acc.q));
 
 	do{
 		strLen += 1;
-		acc.q = _c_udivMod256by32(&(acc.q),10);
+		acc = _c_udivMod256by32(&(acc.q),10);
 		uint64_t rem = acc.r.words.w64[0];
 		char digit = '0'+rem;
 		assert(rem < 10);
 
 		outStr[MAX_256_UDECSTR-strLen] = digit;
-	}while(type256NonZero(&(acc.q));
+	}while(type256NonZero(&(acc.q)));
 
 	if(strLen != MAX_256_UDECSTR){
 		int strShift = MAX_256_UDECSTR-strLen;
