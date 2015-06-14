@@ -13,30 +13,49 @@ struct u256{
 		uint32_t w32[8];
 	}words;
 };
+struct u256_divRet{
+	struct u256 q;
+	struct u256 r;
+};
 /******************************************************************************
 *                                   DEFINES                                   *
 ******************************************************************************/
+#define MAX_256_UDECSTR 78
+
 #if ( defined(__GNUC__) && defined(__x86_64__) )
 #define	_GNU_X86_64_ 1
 #endif
 
 /* public API functions */
 #ifndef _GNU_X86_64_
-#define uadd256   _c_uadd256
+#define uadd256     _c_uadd256
 #else
-#define uadd256   _x64_uadd256
+#define uadd256     _x64_uadd256
 #endif
 
 #ifndef _GNU_X86_64_
-#define  usub256  _c_usub256
+#define  usub256    _c_usub256
 #else
-#define  usub256  _x64_usub256
+#define  usub256    _x64_usub256
 #endif
 
-#define umul256   _c_umul256
-#define udiv256   _c_udiv256
-#define lshift256 _c_lshift256
-#define rshift256 _c_rshift256
+#define umul256     _c_umul256
+#define umul256by64 _c_umul256by64
+#define udiv256     _c_udiv256
+#define umod256     _c_umod256
+#define udivMod256  _c_udivMod256
+#define lshift256   _c_lshift256
+#define rshift256   _c_rshift256
+/******************************************************************************
+*                       PURE C IMPLEMENTATION FUNCTIONS                       *
+******************************************************************************/
+struct u256 _c_rshift256(struct u256* a, unsigned n);
+struct u256 _c_lshift256(struct u256* a, unsigned n);
+struct u256 _c_uadd256(struct u256* a, struct u256* b);
+struct u256 _c_usub256(struct u256* a, struct u256* b);
+struct u256 _c_umul256(struct u256* a, struct u256* b);
+struct u256 _c_umul256by64(struct u256* a, uint64_t b);
+struct u256_divRet _c_udivMod256(struct u256* n, struct u256* d);
 /******************************************************************************
 *                              INLINE FUNCTIONS                               *
 ******************************************************************************/
@@ -104,19 +123,17 @@ static inline struct u256 _x64_usub256(struct u256* a, struct u256* b){
 	return y;
 }
 #endif
+
+static inline struct u256 _c_udiv256(struct u256* n, struct u256* d){
+	return _c_udivMod256(n,d).q;
+}
+static inline struct u256 _c_umod256(struct u256* n, struct u256* d){
+	return _c_udivMod256(n,d).r;
+}
 /******************************************************************************
 *                            FUNCTION DECLARATIONS                            *
 ******************************************************************************/
-
-/* public API functions */
+/* public API function prototypes */
 int ucmp256(struct u256* a,struct u256* b);
 struct u256 build256(uint64_t a,uint64_t b,uint64_t c,uint64_t d);
-
-/* Pure C implementation functions */
-struct u256 _c_rshift256(struct u256* a, unsigned n);
-struct u256 _c_lshift256(struct u256* a, unsigned n);
-struct u256 _c_uadd256(struct u256* a, struct u256* b);
-struct u256 _c_usub256(struct u256* a, struct u256* b);
-struct u256 _c_umul256(struct u256* a, struct u256* b);
-struct u256 _c_udiv256(struct u256* n, struct u256* d);
 #endif //_TYPE_256_H_

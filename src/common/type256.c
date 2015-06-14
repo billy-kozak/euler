@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <errno.h>
+#include <stdlib.h>
 /******************************************************************************
 *                                   DEFINES                                   *
 ******************************************************************************/
@@ -131,6 +132,30 @@ struct u256 _c_umul256(struct u256* a, struct u256* b){
 	return y;
 }
 /**
+* Pure C implementation of multiplication by a 64 bit word
+**/
+struct u256 _c_umul256by64(struct u256* a, uint64_t b){
+
+	struct u256 y = {{{0}}};
+	union{uint64_t w64; uint32_t w32[2];} bWords = { .w64 = b};
+
+	for(int i = 0; i < 2; i++){
+		uint64_t carry = 0;
+		uint64_t bWord = bWords.w32[i];
+
+		for(int n = 0; n < 8-i; n++){
+			uint64_t aWord = a->words.w32[n];
+			uint64_t tmp  = (aWord*bWord);
+			tmp += carry+(uint64_t)y.words.w32[n+i];
+
+			y.words.w32[n+i] = (tmp&MASK_32LOW);
+			carry = (tmp&MASK_32HIGH)>>32;
+		}
+	}
+
+	return y;
+}
+/**
 * Pure C implementation of right shift
 **/
 struct u256 _c_rshift256(struct u256* a, unsigned n){
@@ -167,7 +192,8 @@ struct u256 _c_lshift256(struct u256* a, unsigned n){
 /**
 * Pure C imlementation of unsigned division
 **/
-struct u256 _c_udiv256(struct u256* n, struct u256* d){
+struct u256_divRet _c_udivMod256(struct u256* n, struct u256* d){
+	struct u256_divRet ret;
 	struct u256 q = {{{0}}};
 	struct u256 r = {{{0}}};
 
@@ -182,7 +208,32 @@ struct u256 _c_udiv256(struct u256* n, struct u256* d){
 		}
 	}
 
-	return q;
+	ret.q = q;
+	ret.r = r;
+
+	return ret;
+}
+/**
+* Pure C imlementation of unsigned division by a 32 bit number
+**/
+struct u256_divRet _c_udivMod256by32(struct u256* n,uint32_t d){
+	struct u256_divRet ret;
+	struct u256 q = {{{0}}};
+	struct u256 r = {{{0}}};
+
+	uint64_t remain = 0;
+	for(int i = 7; i >= 0; i--){
+		uint64_t next = (remain<<32)|(n->words.w32[i]);
+		q.words.w32[i] = next/(uint64_t)d;
+		remain = next%(uint64_t)d;
+	}
+
+	r.words.w64[0] = remain;
+
+	ret.q = q;
+	ret.r = r;
+
+	return ret;
 }
 /**
 * Converts a string to 256 bit num
@@ -214,14 +265,23 @@ int strToU256(const char*nptr,char** endptr,struct u256* y){
 	memset(y,0,sizeof(*y));
 
 	for(int i = lastD; i >= firstD; i--){
-		struct u256 digit = build256(0,0,0,nptr[i]-'0');
-		struct u256 digVal = umul256(&tenPow,&digit);
+		struct u256 digVal = umul256by64(&tenPow,nptr[i]-'0');
 
 		output = uadd256(&output,&digVal);
+		tenPow = umul256by64(&tenPow,10);
 	}
 
 	*endptr = (char*)(&nptr[lastD+1]);
 	memcpy(y,&output,sizeof(output));
 
 	return 0;
+}
+/**
+* Convert u256 to a decimal string
+**/
+char* u256ToStr_dec(struct u256* n){
+
+	char* outStr = malloc(MAX_256_UDECSTR*sizeof(char));
+
+	return outStr;
 }
