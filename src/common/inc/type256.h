@@ -4,14 +4,12 @@
 *                                  INCLUDES                                   *
 ******************************************************************************/
 #include <stdint.h>
+#include "archDetails.h"
 /******************************************************************************
 *                                    TYPES                                    *
 ******************************************************************************/
 struct u256{
-	union{
-		uint64_t w64[4];
-		uint32_t w32[8];
-	}words;
+	uint64_t words[4];
 };
 struct u256_divRet{
 	struct u256 q;
@@ -21,10 +19,6 @@ struct u256_divRet{
 *                                   DEFINES                                   *
 ******************************************************************************/
 #define MAX_256_UDECSTR 78
-
-#if ( defined(__GNUC__) && defined(__x86_64__) )
-#define	_GNU_X86_64_ 1
-#endif
 
 /* public API functions */
 #ifndef _GNU_X86_64_
