@@ -307,7 +307,7 @@ int strToU256(const char*nptr,char** endptr,struct u256* y){
 		return 1;
 	}
 
-	if(!isdigit(firstD)){
+	if(!isdigit(nptr[firstD])){
 		//error, string is invalid
 		return 1;
 	}
@@ -326,10 +326,10 @@ int strToU256(const char*nptr,char** endptr,struct u256* y){
 		output = uadd256(&output,&digVal);
 		tenPow = umul256by32(&tenPow,10);
 	}
-
-	*endptr = (char*)(&nptr[lastD+1]);
+	if(endptr){
+		*endptr = (char*)(&(nptr[lastD+1]));
+	}
 	memcpy(y,&output,sizeof(output));
-
 	return 0;
 }
 /**
