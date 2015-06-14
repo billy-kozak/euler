@@ -366,3 +366,39 @@ char* u256ToStr_dec(struct u256* n){
 
 	return outStr;
 }
+/**
+*
+**/
+char* u256ToStr_hex(struct u256* n){
+	bool firstDigit = false;
+	char * s = calloc(MAX_256_UHEXSTR+1,sizeof(*s));
+	int strInd = 0;
+
+	if(!s){
+		return NULL;
+	}
+
+	for(int i = 3; i >= 0; i--){
+		if(!firstDigit && !n->words[i]){
+			continue;
+		}
+
+		if(!firstDigit){
+			int pLen = sprintf(
+					s+strInd,"%llx",
+					(unsigned long long)n->words[i]
+				);
+			firstDigit = true;
+			strInd += pLen;
+		}
+		else{
+			int pLen = sprintf(
+					s+strInd,"%016llx",
+					(unsigned long long)n->words[i]
+				);
+			strInd += pLen;
+		}
+	}
+
+	return s;
+}

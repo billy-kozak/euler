@@ -19,6 +19,7 @@ struct u256_divRet{
 *                                   DEFINES                                   *
 ******************************************************************************/
 #define MAX_256_UDECSTR 78
+#define MAX_256_UHEXSTR 64
 
 /* public API functions */
 #ifndef _GNU_X86_64_
@@ -133,5 +134,6 @@ static inline struct u256 _c_umod256(struct u256* n, struct u256* d){
 int ucmp256(struct u256* a,struct u256* b);
 struct u256 build256(uint64_t a,uint64_t b,uint64_t c,uint64_t d);
 char* u256ToStr_dec(struct u256* n);
+char* u256ToStr_hex(struct u256* n);
 int strToU256(const char*nptr,char** endptr,struct u256* y);
 #endif //_TYPE_256_H_
