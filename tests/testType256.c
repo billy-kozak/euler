@@ -74,7 +74,7 @@ static bool testStrConv(void){
 			0xcf06bf97b2b44091ULL
 		);
 	char* s = u256ToStr_dec(&orig);
-	strToU256(s,NULL,&derived);
+	strToU256_dec(s,NULL,&derived);
 	free(s);
 
 	if(ucmp256(&orig,&derived)){

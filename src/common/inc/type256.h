@@ -135,5 +135,5 @@ int ucmp256(struct u256* a,struct u256* b);
 struct u256 build256(uint64_t a,uint64_t b,uint64_t c,uint64_t d);
 char* u256ToStr_dec(struct u256* n);
 char* u256ToStr_hex(struct u256* n);
-int strToU256(const char*nptr,char** endptr,struct u256* y);
+int strToU256_dec(const char*nptr,char** endptr,struct u256* y);
 #endif //_TYPE_256_H_

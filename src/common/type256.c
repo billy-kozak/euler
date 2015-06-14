@@ -294,7 +294,7 @@ struct u256_divRet _c_udivMod256by32(struct u256* n,uint32_t d){
 /**
 * Converts a string to 256 bit num
 **/
-int strToU256(const char*nptr,char** endptr,struct u256* y){
+int strToU256_dec(const char*nptr,char** endptr,struct u256* y){
 
 	struct u256 output = {{0}};
 	struct u256 tenPow = build256(0,0,0,1);
