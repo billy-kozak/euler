@@ -11,6 +11,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <assert.h>
 /******************************************************************************
 *                                   DEFINES                                   *
 ******************************************************************************/
@@ -28,9 +29,17 @@
 ******************************************************************************/
 static void type256bitSet(struct u256* a, unsigned n, bool val);
 static bool type256bitGet(struct u256* a, unsigned n);
+static bool type256NonZero(struct u256* a);
 /******************************************************************************
 *                            FUNCTION DEFINITIONS                             *
 ******************************************************************************/
+/**
+* Returns true if struct is equal to zero
+**/
+static bool type256NonZero(struct u256* a){
+	uint64_t* words = &(a->words.w64);
+	return words[3]||words[2]||words[1]||words[0];
+}
 /**
 * Sets bit to some value
 **/
@@ -281,7 +290,32 @@ int strToU256(const char*nptr,char** endptr,struct u256* y){
 **/
 char* u256ToStr_dec(struct u256* n){
 
-	char* outStr = malloc(MAX_256_UDECSTR*sizeof(char));
+	struct u256_divRet acc;
+	char* outStr = malloc((MAX_256_UDECSTR+1)*sizeof(char));
+	int strLen = 0;
+	if(!outStr){
+		return NULL;
+	}
+
+	memcpy(&(acc.q),n,sizeof(tmp));
+
+	do{
+		strLen += 1;
+		acc.q = _c_udivMod256by32(&(acc.q),10);
+		uint64_t rem = acc.r.words.w64[0];
+		char digit = '0'+rem;
+		assert(rem < 10);
+
+		outStr[MAX_256_UDECSTR-strLen] = digit;
+	}while(type256NonZero(&(acc.q));
+
+	if(strLen != MAX_256_UDECSTR){
+		int strShift = MAX_256_UDECSTR-strLen;
+		for(int i = 0; i < strLen; i++){
+			outStr[i] = outStr[i+strShift];
+		}
+	}
+	outStr[strLen+1] = '\0';
 
 	return outStr;
 }
