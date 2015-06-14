@@ -322,8 +322,13 @@ int strToU256_dec(const char*nptr,char** endptr,struct u256* y){
 
 	for(int i = lastD; i >= firstD; i--){
 		struct u256 digVal = umul256by32(&tenPow,nptr[i]-'0');
+		struct u256 tmp = uadd256(&output,&digVal);
 
-		output = uadd256(&output,&digVal);
+		if(ucmp256(&tmp,&output) < 0){
+			return 2;
+		}
+
+		output = tmp;
 		tenPow = umul256by32(&tenPow,10);
 	}
 	if(endptr){
