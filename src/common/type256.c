@@ -315,7 +315,7 @@ char* u256ToStr_dec(struct u256* n){
 			outStr[i] = outStr[i+strShift];
 		}
 	}
-	outStr[strLen+1] = '\0';
+	outStr[strLen] = '\0';
 
 	return outStr;
 }
