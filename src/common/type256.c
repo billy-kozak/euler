@@ -143,23 +143,21 @@ struct u256 _c_umul256(struct u256* a, struct u256* b){
 /**
 * Pure C implementation of multiplication by a 64 bit word
 **/
-struct u256 _c_umul256by64(struct u256* a, uint64_t b){
+struct u256 _c_umul256by32(struct u256* a, uint32_t b){
 
 	struct u256 y = {{{0}}};
-	union{uint64_t w64; uint32_t w32[2];} bWords = { .w64 = b};
 
-	for(int i = 0; i < 2; i++){
-		uint64_t carry = 0;
-		uint64_t bWord = bWords.w32[i];
+	uint64_t carry = 0;
+	uint64_t bWord = b;
 
-		for(int n = 0; n < 8-i; n++){
-			uint64_t aWord = a->words.w32[n];
-			uint64_t tmp  = (aWord*bWord);
-			tmp += carry+(uint64_t)y.words.w32[n+i];
+	for(int n = 0; n < 8; n++){
+		uint64_t aWord = a->words.w32[n];
+		uint64_t tmp  = (aWord*bWord);
 
-			y.words.w32[n+i] = (tmp&MASK_32LOW);
-			carry = (tmp&MASK_32HIGH)>>32;
-		}
+		tmp += carry+(uint64_t)y.words.w32[n];
+
+		y.words.w32[n] = (tmp&MASK_32LOW);
+		carry = (tmp&MASK_32HIGH)>>32;
 	}
 
 	return y;
@@ -274,10 +272,10 @@ int strToU256(const char*nptr,char** endptr,struct u256* y){
 	memset(y,0,sizeof(*y));
 
 	for(int i = lastD; i >= firstD; i--){
-		struct u256 digVal = umul256by64(&tenPow,nptr[i]-'0');
+		struct u256 digVal = umul256by32(&tenPow,nptr[i]-'0');
 
 		output = uadd256(&output,&digVal);
-		tenPow = umul256by64(&tenPow,10);
+		tenPow = umul256by32(&tenPow,10);
 	}
 
 	*endptr = (char*)(&nptr[lastD+1]);
@@ -301,7 +299,7 @@ char* u256ToStr_dec(struct u256* n){
 
 	do{
 		strLen += 1;
-		acc = _c_udivMod256by32(&(acc.q),10);
+		acc = udivMod256by32(&(acc.q),10);
 		uint64_t rem = acc.r.words.w64[0];
 		char digit = '0'+rem;
 		assert(rem < 10);

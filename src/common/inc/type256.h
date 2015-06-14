@@ -28,24 +28,25 @@ struct u256_divRet{
 
 /* public API functions */
 #ifndef _GNU_X86_64_
-#define uadd256     _c_uadd256
+#define uadd256        _c_uadd256
 #else
-#define uadd256     _x64_uadd256
+#define uadd256        _x64_uadd256
 #endif
 
 #ifndef _GNU_X86_64_
-#define  usub256    _c_usub256
+#define  usub256       _c_usub256
 #else
-#define  usub256    _x64_usub256
+#define  usub256       _x64_usub256
 #endif
 
-#define umul256     _c_umul256
-#define umul256by64 _c_umul256by64
-#define udiv256     _c_udiv256
-#define umod256     _c_umod256
-#define udivMod256  _c_udivMod256
-#define lshift256   _c_lshift256
-#define rshift256   _c_rshift256
+#define umul256        _c_umul256
+#define umul256by32    _c_umul256by32
+#define udiv256        _c_udiv256
+#define umod256        _c_umod256
+#define udivMod256     _c_udivMod256
+#define udivMod256by32 _c_udivMod256by32
+#define lshift256      _c_lshift256
+#define rshift256      _c_rshift256
 /******************************************************************************
 *                       PURE C IMPLEMENTATION FUNCTIONS                       *
 ******************************************************************************/
@@ -54,8 +55,9 @@ struct u256 _c_lshift256(struct u256* a, unsigned n);
 struct u256 _c_uadd256(struct u256* a, struct u256* b);
 struct u256 _c_usub256(struct u256* a, struct u256* b);
 struct u256 _c_umul256(struct u256* a, struct u256* b);
-struct u256 _c_umul256by64(struct u256* a, uint64_t b);
+struct u256 _c_umul256by32(struct u256* a, uint32_t b);
 struct u256_divRet _c_udivMod256(struct u256* n, struct u256* d);
+struct u256_divRet _c_udivMod256by32(struct u256* n,uint32_t d);
 /******************************************************************************
 *                              INLINE FUNCTIONS                               *
 ******************************************************************************/
@@ -136,4 +138,6 @@ static inline struct u256 _c_umod256(struct u256* n, struct u256* d){
 /* public API function prototypes */
 int ucmp256(struct u256* a,struct u256* b);
 struct u256 build256(uint64_t a,uint64_t b,uint64_t c,uint64_t d);
+char* u256ToStr_dec(struct u256* n);
+int strToU256(const char*nptr,char** endptr,struct u256* y);
 #endif //_TYPE_256_H_
