@@ -332,7 +332,7 @@ int strToU256_dec(const char*nptr,char** endptr,struct u256* y){
 		tenPow = umul256by32(&tenPow,10);
 	}
 	if(endptr){
-		*endptr = (char*)(&(nptr[lastD+1]));
+		*endptr = (char*)(nptr+lastD+1);
 	}
 	memcpy(y,&output,sizeof(output));
 	return 0;
