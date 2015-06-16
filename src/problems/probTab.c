@@ -19,6 +19,6 @@
 struct eulerSol (*problemTab[NUM_EULER_PROBLEMS])(void) = {
 	 euler_prob1, euler_prob2, euler_prob3, euler_prob4, euler_prob5
 	,euler_prob6, euler_prob7, euler_prob8, euler_prob9, euler_prob10
-	,euler_prob11, euler_prob12, euler_prob13
+	,euler_prob11, euler_prob12, euler_prob13, euler_prob14
 };
 //END STUBPROB GENERATION//
