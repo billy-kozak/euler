@@ -23,6 +23,7 @@
 #include "eulerProblems.h"
 #include "eulerSolvers.h"
 
+#include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -45,7 +46,7 @@ struct collatzInfo{
 ******************************************************************************/
 static unsigned longestCollatz(unsigned top);
 static uint64_t collatzNext(uint64_t term);
-static int growMap(struct collatzInfo** mPtr,size_t newSize);
+static int growMap(struct collatzInfo** mPtr,size_t sNew, size_t sOld);
 static void collatzAdd(
 		struct collatzInfo* map,uint64_t el,uint64_t head,
 		uint64_t pos
@@ -59,7 +60,7 @@ static uint64_t collatzDistance(struct collatzInfo* map,uint64_t el);
 **/
 static uint64_t collatzNext(uint64_t term){
 	if(term&0x01){
-		return 3*term;
+		return 3*term+1;
 	}
 
 	return term>>1;
@@ -89,15 +90,15 @@ static void collatzAdd(
 	map[el].seqPosition = pos;
 }
 /**
-* Grows map to fit the new size
+* Grows map to fit the new size, makes sure that new memory is zeroed
 **/
-static int growMap(struct collatzInfo** mPtr,size_t newSize){
-	struct collatzInfo* tmp = realloc(*mPtr,newSize*sizeof(*tmp));
+static int growMap(struct collatzInfo** mPtr,size_t sNew, size_t sOld){
+	struct collatzInfo* tmp = realloc(*mPtr,sNew*sizeof(*tmp));
 	if(!tmp){
 		return 1;
 	}
-
 	*mPtr = tmp;
+	memset(tmp+sOld,0,(sNew-sOld));
 	return 0;
 }
 /**
@@ -114,7 +115,7 @@ static unsigned longestCollatz(unsigned top){
 		return 1;
 	}
 
-	collatzMap = calloc(mapSize,sizeof(collatzMap));
+	collatzMap = calloc(mapSize,sizeof(*collatzMap));
 
 	if(!collatzMap){
 		goto fail;
@@ -131,10 +132,10 @@ static unsigned longestCollatz(unsigned top){
 			next = collatzNext(next);
 
 			if(next >= mapSize){
-				mapSize *= 2;
-				if(growMap(&collatzMap,mapSize)){
+				if(growMap(&collatzMap,next+1,mapSize)){
 					goto fail;
 				}
+				mapSize = next+1;
 			}
 
 			if(!collatzMap[next].seqHead){
