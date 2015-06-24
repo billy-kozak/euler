@@ -53,17 +53,21 @@ static unsigned longestCollatz(unsigned top);
 static uint64_t collatzLen(uint64_t term){
 	uint64_t count = 1;
 	uint64_t next = term;
+	int tz;
+
+	if(!(term&0x01)){
+		tz = count_tzll(next);
+		next = next>>tz;
+		count += tz;
+	}
 
 	while(next != 1){
-		int tz = count_tzll(next);
-		if(tz){
-			count += tz;
-			next = next>>tz;
-		}
-		else{
-			count += 1;
-			next = next*3+1;
-		}
+		count += 1;
+		next = next*3+1;
+
+		tz = count_tzll(next);
+		count += tz;
+		next = next>>tz;
 	}
 
 	return count;
