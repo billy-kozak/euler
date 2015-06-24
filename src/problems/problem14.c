@@ -75,15 +75,20 @@ static unsigned longestCollatz(unsigned top){
 
 	uint64_t maxSize = 0;
 	uint64_t head = top;
+	unsigned maxHead = 0;
 
 	while(head){
 		uint64_t count = collatzLen(head);
-		maxSize = (maxSize < count) ? count : maxSize;
+
+		if(maxSize < count){
+			maxSize = count;
+			maxHead = head;
+		}
 
 		head -=1;
 	}
 
-	return maxSize;
+	return maxHead;
 }
 /**
 * Solution for problem 14
