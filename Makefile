@@ -74,7 +74,7 @@ directories: $(BUILD_DIR)/.dir_dummy $(EXE_DIR)/.dir_dummy
 	mkdir -p $(dir $(@))
 	@touch $(@)
 
-$(BUILD_DIR)/%.d: %.c
+$(BUILD_DIR)/%.d: %.c | $(BUILD_DIR)/.dir_dummy
 	$(CC) $(CFLAGS) -MF $@ -M -MT "$(patsubst %.d,%.o,$@) $@" $<
 
 $(BUILD_DIR)/%.o: %.c | $(BUILD_DIR)/.dir_dummy
