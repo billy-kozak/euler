@@ -49,9 +49,9 @@ static void fprintUsage(FILE* fp,const char* progName);
 **/
 static char* usageString(const char* progName){
 	char* u = calloc(sizeof(char),strlen(USAGE)+strlen(progName)+1);
-	
+
 	sprintf(u,"%s%s",progName,USAGE);
-	
+
 	return u;
 }
 /**
@@ -88,20 +88,20 @@ static void fprintUsage(FILE* fp,const char* progName){
 static int strTo_positiveInt(const char* s,long* i){
 	long temp;
 	char* endptr = (char*)s;
-	
+
 	errno = 0;
 	temp = strtoul(s,&endptr,0);
-	
+
 	if(errno || (temp<=0) ){
 		return 1;
 	}
-	
+
 	while(*endptr){
 		if(!isspace(*endptr)){
 			return 1;
 		}
 	}
-	
+
 	*i = temp;
 	return 0;
 }
@@ -118,7 +118,7 @@ static struct euler_progOpts get_progOpts(int argc, char** argv){
 	};
 	int c;
 	int longInd = 0;
-	
+
 	while( (c = getopt_long(argc,argv,optstring,oTab,&longInd) ) != -1){
 		switch(c){
 			case 'h':
@@ -153,7 +153,7 @@ static struct euler_progOpts get_progOpts(int argc, char** argv){
 		fprintUsage(stderr,argv[0]);
 		exit(1);
 	}
-	long temp;
+	long temp = -1;
 	if(strTo_positiveInt(argv[optind],&temp)){
 		fprintf(
 			stderr,
@@ -164,20 +164,20 @@ static struct euler_progOpts get_progOpts(int argc, char** argv){
 		exit(1);
 	}
 	opts.probNum = temp;
-	
-	return opts; 
+
+	return opts;
 }
 /**
 * program entry
 **/
 int main(int argc, char** argv){
-	
+
 	const struct euler_progOpts opts = get_progOpts(argc,argv);
 	struct timespec t1;
 	struct timespec t2;
 	struct eulerSol (*func)(void);
 	struct eulerSol sol;
-	
+
 	if(opts.probNum >= NUM_EULER_PROBLEMS){
 		fprintf(
 				stderr,"Error: problems only go to %d\n",
@@ -185,7 +185,7 @@ int main(int argc, char** argv){
 			);
 		exit(-1);
 	}
-	
+
 	func = problemTab[opts.probNum-1];
 	if(!func){
 		fprintf(
@@ -194,24 +194,24 @@ int main(int argc, char** argv){
 			);
 		exit(0);
 	}
-	
+
 	if(clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t1) ){
-		perror("Error measuring time\n");	
+		perror("Error measuring time\n");
 	}
 	sol = func();
 	if(clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t2) ){
-		perror("Error measuring time\n");	
+		perror("Error measuring time\n");
 	}
-	
+
 	printEulerSol(sol);
-	
+
 	if(!opts.quiet){
-		double elapsed = 
+		double elapsed =
 			(double)(t2.tv_sec-t1.tv_sec) +
 			((double)(t2.tv_nsec-t1.tv_nsec))/1000000000.0;
-			
+
 		printf("Completed in %lf seconds\n",elapsed);
 	}
-	
+
 	return 0;
 }
