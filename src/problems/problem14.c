@@ -113,7 +113,7 @@ static unsigned longestCollatz(unsigned top){
 	uint64_t head = top;
 	size_t mapSize = 4*(top+1);
 	struct collatzInfo* collatzMap;
-	unsigned* collatzHeads;
+	uint64_t* collatzHeads;
 
 	if(head == 1){
 		return 1;
