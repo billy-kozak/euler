@@ -34,8 +34,6 @@ struct collatzInfo{
 	// zero only when unintilized
 	unsigned seqHead;
 	uint64_t seqPosition;
-	/* non-zero only for head objects (seqPosition==0) */
-	uint64_t seqSize;
 };
 /******************************************************************************
 *                                   DEFINES                                   *
@@ -51,7 +49,9 @@ static void collatzAdd(
 		struct collatzInfo* map,uint64_t el,uint64_t head,
 		uint64_t pos
 	);
-static uint64_t collatzDistance(struct collatzInfo* map,uint64_t el);
+static uint64_t collatzDistance(
+		struct collatzInfo* map,uint64_t* collatzHeads, uint64_t el
+	);
 /******************************************************************************
 *                            FUNCTION DEFINITIONS                             *
 ******************************************************************************/
@@ -68,16 +68,19 @@ static uint64_t collatzNext(uint64_t term){
 /**
 * Get the distance to '1' from the given element in the collatz map
 **/
-static uint64_t collatzDistance(struct collatzInfo* map,uint64_t el){
-	struct collatzInfo* head = &map[map[el].seqHead];
+static uint64_t collatzDistance(
+		struct collatzInfo* map,uint64_t* collatzHeads, uint64_t el
+	){
+
+	uint64_t seqSize = collatzHeads[map[el].seqHead];
 	uint64_t pos = map[el].seqPosition;
 
-	if(!head->seqSize){
+	if(!seqSize){
 		//error - we've hit a loop (but more likley a bug...)!
 		return 0;
 	}
 
-	return head->seqSize - pos;
+	return seqSize - pos;
 }
 /**
 * Add value to collatz map
@@ -110,14 +113,16 @@ static unsigned longestCollatz(unsigned top){
 	uint64_t head = top;
 	size_t mapSize = 4*(top+1);
 	struct collatzInfo* collatzMap;
+	unsigned* collatzHeads;
 
 	if(head == 1){
 		return 1;
 	}
 
+	collatzHeads = calloc(sizeof(*collatzHeads),top+1);
 	collatzMap = calloc(mapSize,sizeof(*collatzMap));
 
-	if(!collatzMap){
+	if(!collatzMap || !collatzHeads){
 		goto fail;
 	}
 
@@ -144,7 +149,7 @@ static unsigned longestCollatz(unsigned top){
 			}
 			else{
 				uint64_t partial = collatzDistance(
-						collatzMap,next
+						collatzMap,collatzHeads,next
 					);
 
 				if(!partial){
@@ -156,16 +161,18 @@ static unsigned longestCollatz(unsigned top){
 			}
 		}while(next != 1);
 
-		collatzMap[head].seqSize = count;
+		collatzHeads[head] = count;
 		maxSize = (maxSize < count) ? count : maxSize;
-		for(head = head-1; collatzMap[head].seqHead; head--);
+		for(head = head-1; collatzHeads[head]; head--);
 	}
 
 
 	free(collatzMap);
+	free(collatzHeads);
 	return maxSize;
 fail:
 	free(collatzMap);
+	free(collatzHeads);
 	return 0;
 }
 /**
