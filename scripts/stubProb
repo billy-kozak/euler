@@ -31,20 +31,26 @@ ENTRY_MARK="//OPEN STUBPROB GENERATION//"
 EXIT_MARK ="//END STUBPROB GENERATION//"
 
 PROB_FILE_TEMPLATE="""
-/****************************************************************************** 
-*                                  INCLUDES                                   * 
-******************************************************************************/ 
-#include "eulerProblems.h"                                                      
-#include "eulerSolvers.h"
-/****************************************************************************** 
-*                            FUNCTION DEFINITIONS                             * 
+/******************************************************************************
+*                                  INCLUDES                                   *
 ******************************************************************************/
-/**                                                                             
-* Solution for problem %(pNum)d                                                        
-**/                                                                             
+#include "eulerProblems.h"
+#include "eulerSolvers.h"
+/******************************************************************************
+*                                   DEFINES                                   *
+******************************************************************************/
+/******************************************************************************
+*                             FUNCTION PROTOTYPES                             *
+******************************************************************************/
+/******************************************************************************
+*                            FUNCTION DEFINITIONS                             *
+******************************************************************************/
+/**
+* Solution for problem %(pNum)d
+**/
 struct eulerSol euler_prob%(pNum)d(void){
 	struct eulerSol sol = {U64};
-	
+
 	return sol;
 }
 """
@@ -67,44 +73,44 @@ def addProto(solHead,n):
 				else:
 					raise RuntimeError(
 							('File %s is not '
-							'formatted for dynamic' 
+							'formatted for dynamic'
 							'generation')%solHead
 						)
 			buf += line
-	
+
 	with open(solHead,'w') as fout:
 		fout.write(buf)
-		
+
 def addToTab(probTab,probNum):
 	"""add function to problem table
 	"""
-	
+
 	prefix = ''
 	tabLines = []
 	suffix = ''
-	
+
 	stage = 0
 	func = SOL_FUNC_TEMPLATE%probNum
-	
+
 	with open(probTab) as fin:
 		for line in fin:
 			if line.strip() == ENTRY_MARK:
 				stage = 1
 			elif line.strip() == EXIT_MARK:
 				stage = 2
-			
+
 			if(stage == 0):
 				prefix += line
 			elif stage == 1:
 				tabLines.append(line)
 			else:
 				suffix += line
-	
+
 	tabEnd = 0
 	for i,line in enumerate(tabLines):
 		if line.strip() == '};':
 			tabEnd = i
-	
+
 	if not tabEnd:
 		raise RuntimeError(
 				('File %s is not formatted for dynamic '
@@ -116,22 +122,22 @@ def addToTab(probTab,probNum):
 		tabLines.insert(tabEnd,'\t,'+func+'\n')
 	else:
 		tabLines[tabEnd-1] = tabLines[tabEnd-1].rstrip() + add
-	
+
 	fullText = prefix + ''.join(tabLines) + suffix
 
 	with open(probTab,'w') as fout:
 		fout.write(fullText)
-	
+
 def addProbFile(sourceTree,probNum):
 	"""
 	"""
 	probFilePath = os.path.join(
 			sourceTree,PROB_FILE_PATH_TEMPLATE%probNum
 		)
-	
+
 	with open(probFilePath,'w') as fout:
 		fout.write(PROB_FILE_TEMPLATE%{'pNum':probNum})
-	
+
 if __name__ == '__main__':
 	"""Program entry
 	"""
@@ -140,45 +146,45 @@ if __name__ == '__main__':
 				"USAGE: %s probNum [sourceTree]\n"%sys.argv[0]
 			)
 		exit()
-		
+
 	try:
 		probNum = int(sys.argv[1])
 	except ValueError:
 		sys.stderr.write("Error require integer problem number\n")
 		exit(-1)
-	
+
 	if(probNum < 1):
 		sys.stderr.write("Error: minimum problem number is 1\n")
 		exit(-1)
-	
+
 	if len(sys.argv) == 3:
 		sourceTree = sys.argv[2]
 	else:
 		sourceTree = SOURCE_TREE
-	
+
 	if(not os.path.isdir(sourceTree)):
 		sys.stderr.write(
 				("Error: couldn't find source tree at"
 				" %s\n"%sourceTree)
 			)
 		exit(-1)
-	
+
 	probTab = os.path.join(sourceTree,PROB_TAB_REL_PATH)
 	solHead = os.path.join(sourceTree,SOL_HEADER_REL_PATH)
-	
+
 	try:
 		addProto(solHead,probNum)
 	except Exception as e:
 		sys.stderr.write(str(e)+'\n')
 		exit(-1)
-	
+
 	try:
 		addToTab(probTab,probNum)
 	except Exception as e:
 		sys.stderr.write(str(e)+'\n')
 		exit(-1)
-		
-	
+
+
 	try:
 		addProbFile(sourceTree,probNum)
 	except Exception as e:
