@@ -10,6 +10,10 @@
 ******************************************************************************/
 #include "eulerProblems.h"
 #include "eulerSolvers.h"
+
+#include "2dmatrix.h"
+
+#include <stdio.h>
 /******************************************************************************
 *                                   DEFINES                                   *
 ******************************************************************************/
@@ -18,23 +22,48 @@
 /******************************************************************************
 *                             FUNCTION PROTOTYPES                             *
 ******************************************************************************/
-static unsigned countLatticePaths(unsigned xLen,unsigned yLen);
+static uint64_t countLatticePaths(uint64_t xLen,uint64_t yLen);
 /******************************************************************************
 *                            FUNCTION DEFINITIONS                             *
 ******************************************************************************/
 /**
 * Counts the number of possible lattice paths
 **/
-static unsigned countLatticePaths(unsigned xLen,unsigned yLen){
+static uint64_t countLatticePaths(uint64_t xLen,uint64_t yLen){
+	uint64_t** matrix = alloc2dMatrix(xLen+1,yLen+1,sizeof(**matrix));
+	uint64_t count = 0;
 
-	return 0;
+	if(!matrix){
+		return 0;
+	}
+
+	for(int y = 0; y <= yLen; y++){
+		matrix[xLen][y] = 1;
+	}
+	for(int x = 0; x <= xLen; x++){
+		matrix[x][yLen] = 1;
+	}
+
+	for(int y = yLen-1; y >= 0 ; y--){
+		for(int x = xLen-1; x >= 0; x--){
+			uint64_t right = matrix[x+1][y];
+			uint64_t down  = matrix[x][y+1];
+
+			matrix[x][y] = right+down;
+		}
+	}
+
+	count = matrix[0][0];
+	free2dMatrix(matrix);
+
+	return count;
 }
 /**
 * Solution for problem 15
 **/
 struct eulerSol euler_prob15(void){
-	struct eulerSol sol = {UNSIGNED};
-	sol.val.u = countLatticePaths(PROBLEM15_MAGIC_X,PROBLEM15_MAGIC_Y);
+	struct eulerSol sol = {U64};
+	sol.val.u64 = countLatticePaths(PROBLEM15_MAGIC_X,PROBLEM15_MAGIC_Y);
 
 	return sol;
 }
