@@ -198,7 +198,14 @@ int main(int argc, char** argv){
 	if(clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t1) ){
 		perror("Error measuring time\n");
 	}
+
+	//use compiler barriers to try and stop the compiler from cheating
+	//with the time measurement, probably this would have never happened
+	//anyways however...
+	COMPILER_BARRIER();
 	sol = func();
+	COMPILER_BARRIER();
+
 	if(clock_gettime(CLOCK_PROCESS_CPUTIME_ID,&t2) ){
 		perror("Error measuring time\n");
 	}
