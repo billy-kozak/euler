@@ -16,12 +16,13 @@ LDFLAGS += -Wall
 
 PROJECT := euler
 
-NO_DEPS_TARGETS += clean directories
+NO_DEPS_TARGETS += clean directories dir_clean
 ###############################################################################
 #                                 BUILD DIRS                                  #
 ###############################################################################
-BUILD_DIR := obj
-EXE_DIR   := bin
+BUILD_DIR   := obj
+EXE_DIR     := bin
+ASM_GEN_DIR := asm_gen
 
 SRC_TREE += src
 
@@ -37,6 +38,7 @@ C_PATHS   += $(foreach dir, $(SRC_DIRS),$(wildcard $(dir)/*.c))
 C_FILES   += $(foreach f, $(C_PATHS),$(notdir $(f)))
 OBJ_FILES += $(foreach f,$(C_FILES),$(BUILD_DIR)/$(patsubst %.c,%.o,$(f)))
 DEP_FILES += $(foreach f,$(C_FILES),$(BUILD_DIR)/$(patsubst %.c,%.d,$(f)))
+ASM_GEN   += $(foreach f,$(C_FILES),$(ASM_GEN_DIR)/$(patsubst %.c,%.s,$(f)))
 
 LIBS = -lrt -lm
 
@@ -54,6 +56,7 @@ CLEAN_FILES += $(foreach dir,$(C_DIRS),$(wildcard $(dir)/*~))
 CLEAN_FILES += $(foreach dir,$(C_DIRS),$(wildcard $(dir)/*\#))
 CLEAN_FILES += $(wildcard Makefile~)
 CLEAN_FILES += $(wildcard $(BUILD_DIR)/*) $(wildcard $(EXE_DIR)/*)
+CLEAN_FILES += $(wildcard $(ASM_GEN_DIR)/*)
 ###############################################################################
 #                                   TARGETS                                   #
 ###############################################################################
@@ -68,6 +71,10 @@ optomized: CFLAGS += -DNDEBUG=1 -march=native -Os -flto
 optomized: LDFLAGS += -march=native -Os -flto
 optomized: $(BINARY)
 
+asg_gen: CFLAGS += -fverbose-asm
+asm_gen: CFLAGS += -DNDEBUG=1 -march=native -Os -flto
+asm_gen: $(ASM_GEN)
+
 directories: $(BUILD_DIR)/.dir_dummy $(EXE_DIR)/.dir_dummy
 
 %.dir_dummy:
@@ -80,11 +87,17 @@ $(BUILD_DIR)/%.d: %.c | $(BUILD_DIR)/.dir_dummy
 $(BUILD_DIR)/%.o: %.c | $(BUILD_DIR)/.dir_dummy
 	$(CC) $(CFLAGS) -c $< -o $@
 
+$(ASM_GEN): $(ASM_GEN_DIR)/%.s : %.c | $(ASM_GEN_DIR)/.dir_dummy
+	$(CC) $(CFLAGS) -S $< -o $@
+
 $(BINARY): $(OBJ_FILES) | $(EXE_DIR)/.dir_dummy
 	$(LD) $(LDFLAGS) $^ $(LIBS) -o $@
 
 clean:
 	rm -f $(CLEAN_FILES)
+
+dir_clean:
+	rm -rf $(BUILD_DIR) $(EXE_DIR) $(ASM_GEN_DIR)
 
 ifeq (,$(filter $(MAKECMDGOALS), $(NO_DEPS_TARGETS)))
 

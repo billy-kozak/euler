@@ -1,5 +1,6 @@
 bin/
 obj/
+asm_gen/
 *~
 *#
 tests/bin/
