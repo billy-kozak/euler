@@ -2,7 +2,7 @@ bin/
 obj/
 asm_gen/
 *~
-*#
+./#*#
 tests/bin/
 tests/build/
 tests/info/
