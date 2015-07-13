@@ -16,19 +16,51 @@
 #endif
 
 #ifdef __GNUC__
-#define count_tzll(n) __builtin_ctzl(n)
+#define count_tzll(n) __builtin_ctzll(n)
+#define count_lzll(n) __builtin_clzll(n)
 #else
 #define count_tzll(n) slow_count_tzll(n)
+#define count_lzll(n) slow_count_lzll(n)
 #endif
 /******************************************************************************
 *                              INLINE FUNCTIONS                               *
 ******************************************************************************/
 /**
+* Return true if given n is exact power of 2
+**/
+static inline bool is_power_2(unsigned long long n){
+	return (n-1)&n;
+}
+/**
+* Gets the ceiling of the log2 of n
+**/
+static inline int log2_ceil(unsigned long long n){
+	int leadingZeroes = count_lzll(n);
+	int bits = sizeof(n)<<3;
+
+	if( is_power_2(n) ){
+		return bits - leadingZeroes;
+	} else {
+		//this is an exact power of two
+		return bits - leadingZeroes - 1;
+	}
+}
+/**
 * Counts trailing zeroes using slow pure C implementation
+**/
+static inline int slow_count_lzll(unsigned long long n){
+	int cnt;
+	int max = sizeof(n)*8;
+	for(cnt = 0; !(n&(1<<cnt)) || cnt == max; cnt++);
+	return cnt;
+}
+/**
+* Counts leading zeroes using slow pure C implementation
 **/
 static inline int slow_count_tzll(unsigned long long n){
 	int cnt;
-	for(cnt = 0; !(n&(1<<cnt)); cnt++);
+	int max = sizeof(n)*8;
+	for(cnt = 0; !(n& (1<<(max-cnt)) ) || cnt==max; cnt++);
 	return cnt;
 }
 /**
