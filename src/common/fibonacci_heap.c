@@ -18,11 +18,15 @@ static struct fib_node* minNode(
 	);
 static void treeList_merge(struct fib_node* l1, struct fib_node* l2);
 static void delete_parent(struct fib_node* children);
+static struct fib_node* remove_node(struct fib_node* nodePtr);
 /******************************************************************************
 *                            FUNCTION DEFINITIONS                             *
 ******************************************************************************/
 /**
+* Merge two lists of trees to gether into a single list
 *
+* Either of the pointers can be used to access the list after (being that this
+* is a doubly linked list with no particular start node)
 **/
 static void treeList_merge(struct fib_node* l1, struct fib_node* l2){
 
@@ -38,7 +42,9 @@ static void treeList_merge(struct fib_node* l1, struct fib_node* l2){
 	l2First->prev = l1Last;
 }
 /**
+* Delete the parent in a list of children
 *
+* Simply sets the parent to NULL for each child
 **/
 static void delete_parent(struct fib_node* children){
 	struct fib_node* c = children;
@@ -54,14 +60,26 @@ static void delete_parent(struct fib_node* children){
 	}while( c != children );
 }
 /**
+* Removes a particular node from a list of nodes
 *
+* The given argument is used both to indicate the node we want to remove and
+* to find the list.
+*
+* returns an arbitrary element from tne updated list (NULL if list is now
+* empty).
 **/
-static void remove_root(struct fib_node* rootPtr){
-	struct fib_node* prev = rootPtr->prev;
-	struct fib_node* next = rootPtr->next;
+static struct fib_node* remove_node(struct fib_node* nodePtr){
+	struct fib_node* prev = nodePtr->prev;
+	struct fib_node* next = nodePtr->next;
 
-	prev->next = next;
-	next->prev = prev;
+	if(prev == next){
+		return NULL;
+	} else {
+		prev->next = next;
+		next->prev = prev;
+
+		return next;
+	}
 }
 /**
 *
@@ -81,8 +99,17 @@ static struct fib_node* minNode(
 /**
 *
 **/
+static struct fib_node* balance_heap(struct fib_heap* h,struct fib_node* l){
+	/* TODO - Perform the Balancing act */
+
+	return NULL;
+}
+/**
+*
+**/
 int fibHeap_extractMin(struct fib_heap* heap,void** ret){
 	struct fib_node* min     = heap->minPtr;
+	struct fib_node* newList;
 
 	if(!min){
 		return FIBHEAP_EMPTY;
@@ -91,9 +118,10 @@ int fibHeap_extractMin(struct fib_heap* heap,void** ret){
 	*ret = min->key;
 
 	delete_parent(min->children);
-	remove_root(min);
 
-	/* TODO - Perform the Balancing act */
+	newList = remove_node(min);
+
+	balance_heap(heap,newList);
 	/* TODO - free unused memory */
 
 	return FIBHEAP_SUCCESS;
