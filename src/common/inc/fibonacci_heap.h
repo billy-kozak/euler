@@ -32,8 +32,8 @@ struct fib_node{
 
 struct fib_heap{
 	bool              (*const lt)(void*,void*);
-
-	struct fib_node*              minPtr;
+	unsigned                              size;
+	struct fib_node*                    minPtr;
 };
 /******************************************************************************
 *                             FUNCTION PROTOTYPES                             *

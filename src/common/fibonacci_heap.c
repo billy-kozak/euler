@@ -6,6 +6,8 @@
 ******************************************************************************/
 #include "fibonacci_heap.h"
 
+#include "simpleMath.h"
+
 #include <string.h>
 #include <stdlib.h>
 
@@ -16,9 +18,14 @@
 static struct fib_node* minNode(
 		struct fib_node* n1, struct fib_node* n2,struct fib_heap* heap
 	);
+static struct fib_node* balance_heap(
+		bool (*lt)(void*,void*),unsigned size,
+		struct fib_node* nodeList
+	);
 static void treeList_merge(struct fib_node* l1, struct fib_node* l2);
 static void delete_parent(struct fib_node* children);
 static struct fib_node* remove_node(struct fib_node* nodePtr);
+static struct fib_node* combine_nodes(struct fib_node* a, struct fib_node* b);
 /******************************************************************************
 *                            FUNCTION DEFINITIONS                             *
 ******************************************************************************/
@@ -99,9 +106,34 @@ static struct fib_node* minNode(
 /**
 *
 **/
-static struct fib_node* balance_heap(struct fib_heap* h,struct fib_node* l){
-	/* TODO - Perform the Balancing act */
+static struct fib_node* balance_heap(
+		bool (*lt)(void*,void*),unsigned size,
+		struct fib_node* nodeList
+	){
+	int               arrSize = log2_ceil(size);
+	struct fib_node** arr     = calloc(arrSize,sizeof(*arr));
+	struct fib_node*  node    = nodeList;
 
+	if(!arr) {
+		return NULL;
+	}
+
+	do{
+		struct fib_node* next = node->next;
+
+		assert(node->nChildren < arrSize);
+
+		if(arr[node->nChildren]){
+			arr[node->nChildren] = node;
+		} else {
+			/* TODO: perform successive merge */
+		}
+
+		node = next;
+	}while(node != nodeList);
+
+
+	free(arr);
 	return NULL;
 }
 /**
@@ -118,10 +150,11 @@ int fibHeap_extractMin(struct fib_heap* heap,void** ret){
 	*ret = min->key;
 
 	delete_parent(min->children);
-
 	newList = remove_node(min);
 
-	balance_heap(heap,newList);
+	heap->size -= 1;
+
+	balance_heap(heap->lt,heap->size,newList);
 	/* TODO - free unused memory */
 
 	return FIBHEAP_SUCCESS;
@@ -156,6 +189,8 @@ int fibHeap_insert(struct fib_heap* heap, void* k){
 		}
 	}
 
+	heap->size += 1;
+
 	return FIBHEAP_SUCCESS;
 fail:
 	free(root);
@@ -180,7 +215,10 @@ struct fib_heap* fibHeap_merge(struct fib_heap* h1, struct fib_heap* h2){
 	treeList_merge(h1->minPtr,h2->minPtr);
 
 	h1->minPtr = minNode(h1->minPtr,h2->minPtr,h1);
+	h1->size = h1->size + h2->size;
+
 	h2->minPtr = NULL;
+	h2->size   = 0;
 
 	fibHeap_free(h2);
 	return h1;
@@ -209,7 +247,7 @@ void fibHeap_free(struct fib_heap* heap){
 * Initilizes a fib heap object
 **/
 struct fib_heap* fibHeap_init( bool (*lt)(void*,void*) ){
-	struct fib_heap tmp     = {lt,NULL};
+	struct fib_heap tmp     = {lt,0,NULL};
 	struct fib_heap* output = malloc(sizeof(*output));
 
 	if(!output){
